@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en" data-state="funded">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Home money</title>
+<meta name="description" content="Home in its funded state, with loading and pending-deposit states selected by URL hash.">
+<script>
+  (function () {
+    var root = document.documentElement;
+    function apply() {
+      var h = (location.hash || '').replace('#', '');
+      root.setAttribute('data-state', h === 'loading' || h === 'pending' ? h : 'funded');
+    }
+    apply();
+    window.addEventListener('hashchange', apply);
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+/* ==========================================================================
+   Tokens — verbatim from design-lab/home/tokens.css (Direction 1 values kept
+   byte-for-byte). Components below read only these.
+   ========================================================================== */
+:root {
+  color-scheme: light;
+  --h-canvas:        #f7f8fa;
+  --h-panel:         #ffffff;
+  --h-ink:           #0a0b0d;
+  --h-muted:         #5b6270;
+  --h-hairline:      #e6e8ec;
+  --h-ink-soft:      #2b3038;
+  --h-quiet:         #66707f;
+  --h-well:          #eef0f3;
+  --h-well-press:    #e2e5ea;
+  --h-scrim:         rgba(10, 11, 13, 0.44);
+  --h-outline-fill:  transparent;
+  --h-blue:          #0052ff;
+  --h-blue-press:    #0046d9;
+  --h-blue-ink:      #ffffff;
+  --h-blue-tint:     rgba(0, 82, 255, 0.08);
+  --h-gain:          #157a45;
+  --h-gain-tint:     rgba(21, 122, 69, 0.10);
+  --h-loss:          #c2313d;
+  --h-loss-tint:     rgba(194, 49, 61, 0.10);
+  --h-attention:     #9a5b00;
+  --h-attention-tint:rgba(154, 91, 0, 0.10);
+  --h-focus:         var(--h-ink);
+  --h-font:          "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --h-font-mono:     "Geist Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --h-t-balance:     3rem;      --h-l-balance:  1.08;   --h-k-balance:  -0.03em;
+  --h-t-balance-lg:  2.125rem;  --h-l-balance-lg: 1.15;
+  --h-t-title-lg:    1.75rem;   --h-l-title-lg: 1.2;    --h-k-title-lg: -0.02em;
+  --h-t-title:       1.25rem;   --h-l-title:    1.3;    --h-k-title:    -0.015em;
+  --h-t-headline:    1.0625rem; --h-l-headline: 1.4;    --h-k-headline: -0.01em;
+  --h-t-body:        1rem;      --h-l-body:     1.5;
+  --h-t-secondary:   0.875rem;  --h-l-secondary:1.43;
+  --h-t-caption:     0.75rem;   --h-l-caption:  1.33;
+  --h-t-label:       0.6875rem; --h-l-label:    1.45;   --h-k-label:    0.06em;
+  --h-t-amount:      1.0625rem;
+  --h-t-amount-lg:   1.5rem;
+  --h-s-1: 0.25rem;  --h-s-2: 0.5rem;   --h-s-3: 0.75rem;  --h-s-4: 1rem;
+  --h-s-5: 1.25rem;  --h-s-6: 1.5rem;   --h-s-8: 2rem;     --h-s-10: 2.5rem;
+  --h-s-12: 3rem;
+  --h-gutter: 1.25rem;
+  --h-r-control: 8px;
+  --h-r-panel:   12px;
+  --h-r-sheet:   20px;
+  --h-r-pill:    999px;
+  --h-hit:        2.75rem;
+  --h-hit-lg:     3rem;
+  --h-hit-cta:    3.25rem;
+  --h-row:        3.5rem;
+  --h-tabbar:     3.5rem;
+  --h-ease:        cubic-bezier(0.2, 0, 0, 1);
+  --h-ease-in:     cubic-bezier(0.4, 0, 1, 1);
+  --h-d-press:     120ms;
+  --h-d-chip:      120ms;
+  --h-d-tab:       160ms;
+  --h-d-sheet:     220ms;
+  --h-d-fade:      140ms;
+  --h-shadow-sheet: 0 -1px 0 var(--h-hairline);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --h-canvas:        #0b0c0f;
+    --h-panel:         #1a1d23;
+    --h-ink:           #f2f4f7;
+    --h-muted:         #9aa3b2;
+    --h-hairline:      #2f343c;
+    --h-ink-soft:      #d6dae1;
+    --h-quiet:         #828b99;
+    --h-well:          #1d2026;
+    --h-well-press:    #272b32;
+    --h-scrim:         rgba(0, 0, 0, 0.6);
+    --h-outline-fill:  var(--h-well);
+    --h-blue:          #2f6bff;
+    --h-blue-press:    #4a7dff;
+    --h-blue-ink:      #ffffff;
+    --h-blue-tint:     rgba(47, 107, 255, 0.16);
+    --h-gain:          #3fbf7a;
+    --h-gain-tint:     rgba(63, 191, 122, 0.14);
+    --h-loss:          #ff6b74;
+    --h-loss-tint:     rgba(255, 107, 116, 0.14);
+    --h-attention:     #e8a23c;
+    --h-attention-tint:rgba(232, 162, 60, 0.14);
+    --h-focus:         var(--h-ink);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --h-canvas:        #0b0c0f;
+  --h-panel:         #1a1d23;
+  --h-ink:           #f2f4f7;
+  --h-muted:         #9aa3b2;
+  --h-hairline:      #2f343c;
+  --h-ink-soft:      #d6dae1;
+  --h-quiet:         #828b99;
+  --h-well:          #1d2026;
+  --h-well-press:    #272b32;
+  --h-scrim:         rgba(0, 0, 0, 0.6);
+  --h-outline-fill:  var(--h-well);
+  --h-blue:          #2f6bff;
+  --h-blue-press:    #4a7dff;
+  --h-blue-ink:      #ffffff;
+  --h-blue-tint:     rgba(47, 107, 255, 0.16);
+  --h-gain:          #3fbf7a;
+  --h-gain-tint:     rgba(63, 191, 122, 0.14);
+  --h-loss:          #ff6b74;
+  --h-loss-tint:     rgba(255, 107, 116, 0.14);
+  --h-attention:     #e8a23c;
+  --h-attention-tint:rgba(232, 162, 60, 0.14);
+  --h-focus:         var(--h-ink);
+}
+@media (prefers-reduced-motion: reduce) {
+  :root { --h-d-press: 0ms; --h-d-chip: 0ms; --h-d-tab: 0ms; --h-d-sheet: 0ms; }
+}
+:root[data-motion="reduce"] { --h-d-press: 0ms; --h-d-chip: 0ms; --h-d-tab: 0ms; --h-d-sheet: 0ms; }
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: auto; -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--h-canvas);
+  color: var(--h-ink);
+  font-family: var(--h-font);
+  font-size: var(--h-t-body);
+  line-height: var(--h-l-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+button { font: inherit; color: inherit; margin: 0; }
+svg { display: block; flex: none; }
+.h-num { font-variant-numeric: tabular-nums lining-nums; }
+.h-mono { font-family: var(--h-font-mono); font-size: 0.9375em; }
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+:focus-visible { outline: 2px solid var(--h-focus); outline-offset: 2px; }
+
+/* Screen shell: 390 is the design width, fluid down to 320, capped on wide viewports. */
+.h-screen {
+  position: relative;
+  width: 100%;
+  max-width: 430px;
+  min-width: 320px;
+  min-height: 100dvh;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+.h-main {
+  flex: 1 0 auto;
+  padding: 0 var(--h-gutter) calc(var(--h-tabbar) + env(safe-area-inset-bottom, 0px) + var(--h-s-8));
+}
+
+/* State switching: only the hash decides. */
+:root:not([data-state="loading"]) .st-loading { display: none !important; }
+:root[data-state="loading"] .st-live { display: none !important; }
+:root:not([data-state="pending"]) .st-pending { display: none !important; }
+:root[data-state="pending"] .st-not-pending { display: none !important; }
+
+/* ==========================================================================
+   Top bar — root tab: no inline title, the balance is the title.
+   ========================================================================== */
+.h-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-height: var(--h-hit);
+  padding: calc(env(safe-area-inset-top, 0px) + var(--h-s-2)) var(--h-s-3) var(--h-s-1);
+}
+
+.h-iconbtn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: var(--h-hit); height: var(--h-hit);
+  border: 0; border-radius: var(--h-r-control);
+  background: transparent; color: var(--h-ink);
+  cursor: pointer;
+  transition: background-color var(--h-d-press) var(--h-ease), transform var(--h-d-press) var(--h-ease);
+}
+.h-iconbtn:active { background: var(--h-well-press); transform: scale(0.96); }
+.h-iconbtn[data-surface="well"] { background: var(--h-well); }
+.h-iconbtn[data-tone="muted"] { color: var(--h-muted); }
+
+/* ==========================================================================
+   Hero — unboxed on the canvas. Label above, amount, meta with dot separator.
+   ========================================================================== */
+.h-hero { padding: var(--h-s-5) 0 var(--h-s-6); }
+.h-hero-label {
+  margin: 0;
+  font-size: var(--h-t-secondary); line-height: var(--h-l-secondary);
+  font-weight: 500; color: var(--h-muted);
+}
+.h-hero-amount {
+  display: block;
+  margin: var(--h-s-1) 0 0;
+  font-size: var(--h-t-balance); line-height: var(--h-l-balance);
+  letter-spacing: var(--h-k-balance); font-weight: 500;
+  color: var(--h-ink);
+  overflow-wrap: anywhere;
+}
+.h-hero-amount[data-size="long"] { font-size: var(--h-t-balance-lg); line-height: var(--h-l-balance-lg); letter-spacing: -0.02em; }
+.h-hero-amount .h-cents { font-weight: 400; }
+.h-hero-meta {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--h-s-2);
+  margin: var(--h-s-2) 0 0;
+  font-size: var(--h-t-caption); line-height: var(--h-l-caption); color: var(--h-quiet);
+}
+.h-hero-meta .h-dot::before { content: "·"; margin: 0 var(--h-s-1); }
+
+/* Peers — the two numbers that explain the hero. Never three. */
+.h-peers {
+  display: grid; grid-template-columns: 1fr 1fr; gap: var(--h-s-4);
+  margin: 0 0 var(--h-s-6); padding: 0; list-style: none;
+}
+.h-peer-label {
+  display: block;
+  font-size: var(--h-t-secondary); line-height: var(--h-l-secondary); color: var(--h-muted);
+}
+.h-peer-amount {
+  display: block; margin-top: 2px;
+  font-size: var(--h-t-amount-lg); line-height: 1.2; font-weight: 500;
+  letter-spacing: -0.015em; color: var(--h-ink);
+}
+
+/* Actions — two-button row under the number. One blue. */
+.h-actions { display: grid; grid-template-columns: 1fr 1fr; gap: var(--h-s-3); margin: 0 0 var(--h-s-6); }
+@media (max-width: 359px) { .h-actions { grid-template-columns: 1fr; } }
+.h-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--h-s-2);
+  min-height: var(--h-hit-lg); padding: 0 var(--h-s-4);
+  border: 1px solid transparent; border-radius: var(--h-r-control);
+  background: var(--h-well); color: var(--h-ink);
+  font-size: var(--h-t-body); font-weight: 500; line-height: 1.2; text-align: center;
+  cursor: pointer; text-decoration: none; -webkit-tap-highlight-color: transparent;
+  transition: background-color var(--h-d-press) var(--h-ease), transform var(--h-d-press) var(--h-ease), border-color var(--h-d-press) var(--h-ease);
+}
+.h-btn[data-size="cta"] { min-height: var(--h-hit-cta); font-size: var(--h-t-headline); font-weight: 600; letter-spacing: var(--h-k-headline); }
+.h-btn[data-block] { width: 100%; }
+.h-btn:active { transform: scale(0.985); background: var(--h-well-press); }
+.h-btn[data-variant="primary"] { background: var(--h-blue); color: var(--h-blue-ink); border-color: var(--h-blue); }
+.h-btn[data-variant="primary"]:active { background: var(--h-blue-press); border-color: var(--h-blue-press); }
+.h-btn[data-variant="outline"] { background: var(--h-panel); border-color: var(--h-hairline); }
+.h-btn[data-variant="outline"]:active { background: var(--h-well-press); }
+.h-btn[data-variant="quiet"] { background: transparent; }
+.h-btn[data-variant="quiet"]:active { background: var(--h-well-press); }
+.h-btn[data-size="sm"] { min-height: var(--h-hit); padding: 0 var(--h-s-3); font-size: var(--h-t-secondary); }
+.h-btn:disabled, .h-btn[aria-disabled="true"] { opacity: 0.4; cursor: default; pointer-events: none; }
+
+/* ==========================================================================
+   Sections and panels
+   ========================================================================== */
+.h-section { margin: 0 0 var(--h-s-6); }
+.h-section-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin: 0 0 var(--h-s-3);
+}
+.h-section-title {
+  margin: 0;
+  font-size: var(--h-t-headline); line-height: var(--h-l-headline);
+  font-weight: 600; letter-spacing: var(--h-k-headline); color: var(--h-ink);
+}
+.h-section-head .h-btn[data-variant="quiet"] {
+  /* 44px hit target overhanging the 24px heading line, so section geometry stays 24 + 12. */
+  margin: calc((var(--h-t-headline) * var(--h-l-headline) - var(--h-hit)) / 2) calc(-1 * var(--h-s-3)) calc((var(--h-t-headline) * var(--h-l-headline) - var(--h-hit)) / 2) 0;
+  color: var(--h-muted);
+}
+.h-panel {
+  background: var(--h-panel);
+  border: 1px solid var(--h-hairline);
+  border-radius: var(--h-r-panel);
+  overflow: hidden;
+}
+.h-rows { margin: 0; padding: 0; list-style: none; }
+
+/* Row: media 40, title + description, trailing amount (+ caption), chevron.
+   Hairline inset from the text edge so the media column reads as a column. */
+.h-row {
+  position: relative;
+  display: flex; align-items: center; gap: var(--h-s-3);
+  width: 100%; min-height: var(--h-row);
+  padding: var(--h-s-2) var(--h-s-4);
+  border: 0; background: transparent; text-align: left; color: var(--h-ink);
+  appearance: none; -webkit-appearance: none;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: background-color var(--h-d-press) var(--h-ease);
+}
+div.h-row { cursor: default; }
+.h-row:active { background: var(--h-well); }
+.h-row:focus-visible { outline-offset: -2px; border-radius: var(--h-r-control); }
+.h-rows > li + li > .h-row::before {
+  content: ""; position: absolute; top: 0; right: 0;
+  left: calc(var(--h-s-4) + 2.5rem + var(--h-s-3));
+  height: 1px; background: var(--h-hairline);
+}
+.h-media {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 2.5rem; height: 2.5rem; border-radius: 50%;
+  background: var(--h-well); color: var(--h-ink);
+}
+.h-media svg { width: 20px; height: 20px; }
+.h-media[data-tone="gain"] { background: var(--h-gain-tint); color: var(--h-gain); }
+.h-media[data-tone="loss"] { background: var(--h-loss-tint); color: var(--h-loss); }
+.h-media[data-tone="attention"] { background: var(--h-attention-tint); color: var(--h-attention); }
+.h-media[data-tone="ink"] { background: var(--h-ink); color: var(--h-canvas); }
+.h-row-text { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
+.h-row-title {
+  font-size: var(--h-t-body); line-height: var(--h-l-body); font-weight: 500;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.h-row-desc {
+  font-size: var(--h-t-secondary); line-height: var(--h-l-secondary); color: var(--h-muted);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.h-row-trail { flex: none; display: flex; flex-direction: column; align-items: flex-end; max-width: 16ch; }
+.h-amount { font-size: var(--h-t-amount); line-height: 1.4; font-weight: 500; color: var(--h-ink); white-space: nowrap; }
+.h-amount[data-tone="gain"] { color: var(--h-gain); }
+.h-amount[data-tone="loss"] { color: var(--h-loss); }
+.h-amount[data-tone="muted"] { color: var(--h-muted); }
+.h-amount-sub { font-size: var(--h-t-caption); line-height: var(--h-l-caption); color: var(--h-quiet); white-space: nowrap; }
+.h-chevron { width: 20px; height: 20px; color: var(--h-quiet); margin-right: calc(-1 * var(--h-s-1)); }
+
+/* Pill — status only. The dot carries the colour so the text stays legible. */
+.h-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  min-height: 1.25rem; padding: 0 var(--h-s-2);
+  border-radius: var(--h-r-pill);
+  font-size: var(--h-t-caption); line-height: var(--h-l-caption); font-weight: 500;
+  color: var(--h-ink); background: var(--h-well);
+}
+.h-pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.h-pill[data-tone="attention"] { background: var(--h-attention-tint); }
+.h-pill[data-tone="attention"]::before { background: var(--h-attention); }
+.h-pill[data-tone="gain"] { background: var(--h-gain-tint); }
+.h-pill[data-tone="gain"]::before { background: var(--h-gain); }
+.h-pill[data-tone="loss"] { background: var(--h-loss-tint); }
+.h-pill[data-tone="loss"]::before { background: var(--h-loss); }
+.h-pill[data-dot="none"]::before { display: none; }
+.h-row-trail .h-pill { margin-top: 2px; }
+
+/* Skeleton — same geometry as the content it replaces. */
+.h-skeleton {
+  display: block; background: var(--h-well); border-radius: 6px;
+  animation: h-pulse 1.2s var(--h-ease) infinite alternate;
+}
+.h-skeleton[data-shape="circle"] { border-radius: 50%; }
+@keyframes h-pulse { from { opacity: 1; } to { opacity: 0.55; } }
+.h-hero-amount .h-skeleton { width: 13ch; height: 1em; margin: 0.04em 0; border-radius: 8px; }
+.h-hero-meta .h-skeleton { width: 11ch; height: 1em; }
+.h-peer-amount .h-skeleton { width: 6ch; height: 1em; margin: 0.1em 0; }
+.h-row-title .h-skeleton { width: 7ch; height: 1em; margin: 0.25em 0; }
+.h-row-desc .h-skeleton { width: 11ch; height: 1em; margin: 0.2em 0; }
+.h-amount .h-skeleton { width: 5ch; height: 1em; margin: 0.2em 0; }
+
+/* ==========================================================================
+   Tab bar — 3 items, active is the one place blue repeats.
+   ========================================================================== */
+.h-tabbar {
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 430px; min-width: 320px;
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  min-height: calc(var(--h-tabbar) + env(safe-area-inset-bottom, 0px));
+  padding: 0 var(--h-s-2) env(safe-area-inset-bottom, 0px);
+  background: var(--h-panel);
+  border-top: 1px solid var(--h-hairline);
+}
+.h-tab {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  min-height: var(--h-tabbar); padding: var(--h-s-1) var(--h-s-2);
+  border: 0; border-radius: var(--h-r-control); background: transparent;
+  color: var(--h-quiet); cursor: pointer; -webkit-tap-highlight-color: transparent;
+  font-size: var(--h-t-label); line-height: var(--h-l-label); font-weight: 600; letter-spacing: 0.01em;
+  transition: color var(--h-d-tab) var(--h-ease);
+}
+.h-tab svg { width: 24px; height: 24px; }
+.h-tab[aria-current="page"] { color: var(--h-blue); }
+.h-tab:active { color: var(--h-ink); }
+.h-tab:focus-visible { outline-offset: -2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .h-skeleton { animation: none; }
+  .h-btn:active, .h-iconbtn:active { transform: none; }
+}
+:root[data-motion="reduce"] .h-skeleton { animation: none; }
+:root[data-motion="reduce"] .h-btn:active, :root[data-motion="reduce"] .h-iconbtn:active { transform: none; }
+</style>
+</head>
+<body>
+<div class="h-screen">
+
+  <header class="h-topbar">
+    <h1 class="sr-only">Home</h1>
+    <button class="h-iconbtn" type="button" aria-label="Account">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="8.5" r="4"/>
+        <path d="M4.5 20.5a7.5 7.5 0 0 1 15 0"/>
+      </svg>
+    </button>
+  </header>
+
+  <main class="h-main" id="main">
+
+    <!-- Hero: net position -->
+    <section class="h-hero" aria-labelledby="net-label">
+      <p class="h-hero-label" id="net-label">Net position</p>
+
+      <p class="h-hero-amount h-num st-live"><span class="sr-only">1,250 dollars and 0 cents</span><span aria-hidden="true">$1,250<span class="h-cents">.00</span></span></p>
+      <p class="h-hero-amount st-loading" aria-hidden="true"><span class="h-skeleton"></span></p>
+      <p class="sr-only st-loading" role="status" aria-live="polite">Loading your balances</p>
+
+      <p class="h-hero-meta st-live st-not-pending"><span>Cash + saved − debt</span><span class="h-dot">Updated 12:04 UTC</span></p>
+      <p class="h-hero-meta st-pending"><span class="h-pill" data-tone="attention">Pending</span><span class="h-num">$100.00 to Gauntlet</span><span class="h-dot">Not counted yet</span></p>
+      <p class="h-hero-meta st-loading" aria-hidden="true"><span class="h-skeleton"></span></p>
+    </section>
+
+    <!-- Peers: the two numbers that explain the hero -->
+    <ul class="h-peers" aria-label="Where it is">
+      <li>
+        <span class="h-peer-label">Cash</span>
+        <span class="h-peer-amount h-num st-live">$250.00</span>
+        <span class="h-peer-amount st-loading" aria-hidden="true"><span class="h-skeleton"></span></span>
+      </li>
+      <li>
+        <span class="h-peer-label">Saved</span>
+        <span class="h-peer-amount h-num st-live">$1,000.00</span>
+        <span class="h-peer-amount st-loading" aria-hidden="true"><span class="h-skeleton"></span></span>
+      </li>
+    </ul>
+
+    <!-- Actions: one primary -->
+    <div class="h-actions">
+      <button class="h-btn" data-variant="primary" data-size="cta" data-block type="button">
+        Add money
+      </button>
+      <button class="h-btn st-live" data-variant="outline" data-size="cta" data-block type="button">
+        Move to savings
+      </button>
+      <button class="h-btn st-loading" data-variant="outline" data-size="cta" data-block type="button" aria-disabled="true">
+        Move to savings
+      </button>
+    </div>
+
+    <!-- Positions -->
+    <section class="h-section" aria-labelledby="positions-title">
+      <div class="h-section-head">
+        <h2 class="h-section-title" id="positions-title">Positions</h2>
+      </div>
+
+      <div class="h-panel st-live">
+        <ul class="h-rows">
+          <li>
+            <button class="h-row" type="button">
+              <span class="h-media" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M3 10h2M19 10h2"/></svg>
+              </span>
+              <span class="h-row-text">
+                <span class="h-row-title">Cash</span>
+                <span class="h-row-desc">Available</span>
+              </span>
+              <span class="h-row-trail">
+                <span class="h-amount h-num">$250.00</span>
+              </span>
+              <svg class="h-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+            </button>
+          </li>
+          <li>
+            <button class="h-row" type="button">
+              <span class="h-media" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><circle cx="12" cy="12" r="3.25"/><path d="M12 8.75V7.5M12 16.5v-1.25"/></svg>
+              </span>
+              <span class="h-row-text">
+                <span class="h-row-title">Saved</span>
+                <span class="h-row-desc">2 vaults</span>
+              </span>
+              <span class="h-row-trail">
+                <span class="h-amount h-num">$1,000.00</span>
+                <span class="h-amount-sub h-num">4.04% APY</span>
+              </span>
+              <svg class="h-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+            </button>
+          </li>
+          <li>
+            <button class="h-row" type="button">
+              <span class="h-media" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.5L12 5l8 5.5"/><path d="M6 10v8M10 10v8M14 10v8M18 10v8"/><path d="M4 19h16"/></svg>
+              </span>
+              <span class="h-row-text">
+                <span class="h-row-title">Debt</span>
+                <span class="h-row-desc">Nothing owed</span>
+              </span>
+              <span class="h-row-trail">
+                <span class="h-amount h-num" data-tone="muted">$0.00</span>
+                <span class="h-amount-sub">Verified</span>
+              </span>
+              <svg class="h-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+            </button>
+          </li>
+        </ul>
+      </div>
+
+      <div class="h-panel st-loading" aria-hidden="true">
+        <ul class="h-rows">
+          <li><div class="h-row"><span class="h-media h-skeleton" data-shape="circle"></span><span class="h-row-text"><span class="h-row-title"><span class="h-skeleton"></span></span><span class="h-row-desc"><span class="h-skeleton"></span></span></span><span class="h-row-trail"><span class="h-amount"><span class="h-skeleton"></span></span></span></div></li>
+          <li><div class="h-row"><span class="h-media h-skeleton" data-shape="circle"></span><span class="h-row-text"><span class="h-row-title"><span class="h-skeleton"></span></span><span class="h-row-desc"><span class="h-skeleton"></span></span></span><span class="h-row-trail"><span class="h-amount"><span class="h-skeleton"></span></span></span></div></li>
+          <li><div class="h-row"><span class="h-media h-skeleton" data-shape="circle"></span><span class="h-row-text"><span class="h-row-title"><span class="h-skeleton"></span></span><span class="h-row-desc"><span class="h-skeleton"></span></span></span><span class="h-row-trail"><span class="h-amount"><span class="h-skeleton"></span></span></span></div></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Activity -->
+    <section class="h-section" aria-labelledby="activity-title">
+      <div class="h-section-head">
+        <h2 class="h-section-title" id="activity-title">Activity</h2>
+        <button class="h-btn st-live" data-variant="quiet" data-size="sm" type="button">See all</button>
+      </div>
+
+      <div class="h-panel st-live">
+        <ul class="h-rows">
+          <li class="st-pending">
+            <button class="h-row" type="button">
+              <span class="h-media" data-tone="attention" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.25"/><path d="M12 7.5V12l3 2"/></svg>
+              </span>
+              <span class="h-row-text">
+                <span class="h-row-title">Saving to Gauntlet</span>
+                <span class="h-row-desc">Pending · 12:03</span>
+              </span>
+              <span class="h-row-trail">
+                <span class="h-amount h-num" data-tone="muted">$100.00</span>
+                <span class="h-pill" data-tone="attention" aria-hidden="true">Pending</span>
+              </span>
+              <svg class="h-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+            </button>
+          </li>
+          <li>
+            <button class="h-row" type="button">
+              <span class="h-media" data-tone="gain" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M17 7L7 17M7 9v8h8"/></svg>
+              </span>
+              <span class="h-row-text">
+                <span class="h-row-title">Received</span>
+                <span class="h-row-desc"><span class="h-mono">0x2222…2222</span> · 11:52</span>
+              </span>
+              <span class="h-row-trail">
+                <span class="h-amount h-num" data-tone="gain">+$250.00</span>
+              </span>
+              <svg class="h-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+            </button>
+          </li>
+          <li>
+            <button class="h-row" type="button">
+              <span class="h-media" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><circle cx="12" cy="12" r="3.25"/><path d="M12 8.75V7.5M12 16.5v-1.25"/></svg>
+              </span>
+              <span class="h-row-text">
+                <span class="h-row-title">Saved</span>
+                <span class="h-row-desc">Gauntlet · Sep 12</span>
+              </span>
+              <span class="h-row-trail">
+                <span class="h-amount h-num">$500.00</span>
+              </span>
+              <svg class="h-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+            </button>
+          </li>
+          <li>
+            <button class="h-row" type="button">
+              <span class="h-media" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><circle cx="12" cy="12" r="3.25"/><path d="M12 8.75V7.5M12 16.5v-1.25"/></svg>
+              </span>
+              <span class="h-row-text">
+                <span class="h-row-title">Saved</span>
+                <span class="h-row-desc">Steakhouse · Sep 12</span>
+              </span>
+              <span class="h-row-trail">
+                <span class="h-amount h-num">$250.00</span>
+              </span>
+              <svg class="h-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+            </button>
+          </li>
+          <li>
+            <button class="h-row" type="button">
+              <span class="h-media" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><circle cx="12" cy="12" r="3.25"/><path d="M12 8.75V7.5M12 16.5v-1.25"/></svg>
+              </span>
+              <span class="h-row-text">
+                <span class="h-row-title">Saved</span>
+                <span class="h-row-desc">Gauntlet · Sep 5</span>
+              </span>
+              <span class="h-row-trail">
+                <span class="h-amount h-num">$250.00</span>
+              </span>
+              <svg class="h-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+            </button>
+          </li>
+          <li>
+            <button class="h-row" type="button">
+              <span class="h-media" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg>
+              </span>
+              <span class="h-row-text">
+                <span class="h-row-title">Sent</span>
+                <span class="h-row-desc"><span class="h-mono">0x3333…3333</span> · Sep 3</span>
+              </span>
+              <span class="h-row-trail">
+                <span class="h-amount h-num">−$40.00</span>
+              </span>
+              <svg class="h-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+            </button>
+          </li>
+        </ul>
+      </div>
+
+      <div class="h-panel st-loading" aria-hidden="true">
+        <ul class="h-rows">
+          <li><div class="h-row"><span class="h-media h-skeleton" data-shape="circle"></span><span class="h-row-text"><span class="h-row-title"><span class="h-skeleton"></span></span><span class="h-row-desc"><span class="h-skeleton"></span></span></span><span class="h-row-trail"><span class="h-amount"><span class="h-skeleton"></span></span></span></div></li>
+          <li><div class="h-row"><span class="h-media h-skeleton" data-shape="circle"></span><span class="h-row-text"><span class="h-row-title"><span class="h-skeleton"></span></span><span class="h-row-desc"><span class="h-skeleton"></span></span></span><span class="h-row-trail"><span class="h-amount"><span class="h-skeleton"></span></span></span></div></li>
+          <li><div class="h-row"><span class="h-media h-skeleton" data-shape="circle"></span><span class="h-row-text"><span class="h-row-title"><span class="h-skeleton"></span></span><span class="h-row-desc"><span class="h-skeleton"></span></span></span><span class="h-row-trail"><span class="h-amount"><span class="h-skeleton"></span></span></span></div></li>
+          <li><div class="h-row"><span class="h-media h-skeleton" data-shape="circle"></span><span class="h-row-text"><span class="h-row-title"><span class="h-skeleton"></span></span><span class="h-row-desc"><span class="h-skeleton"></span></span></span><span class="h-row-trail"><span class="h-amount"><span class="h-skeleton"></span></span></span></div></li>
+          <li><div class="h-row"><span class="h-media h-skeleton" data-shape="circle"></span><span class="h-row-text"><span class="h-row-title"><span class="h-skeleton"></span></span><span class="h-row-desc"><span class="h-skeleton"></span></span></span><span class="h-row-trail"><span class="h-amount"><span class="h-skeleton"></span></span></span></div></li>
+        </ul>
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="h-tabbar" aria-label="Main">
+    <button class="h-tab" type="button" aria-current="page">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 6.5v11M14.75 9.25a2.75 2.75 0 0 0-2.5-1.5h-.75a2.25 2.25 0 0 0 0 4.5h1a2.25 2.25 0 0 1 0 4.5h-.75a2.75 2.75 0 0 1-2.5-1.5"/></svg>
+      Money
+    </button>
+    <button class="h-tab" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg>
+      Activity
+    </button>
+    <button class="h-tab" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></svg>
+      Explore
+    </button>
+  </nav>
+
+</div>
+</body>
+</html>

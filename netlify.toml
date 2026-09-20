@@ -1,0 +1,5 @@
+# Standalone Netlify site for the design lab.
+# In Netlify: New site → this repo → Base directory "design-lab" → it reads this file.
+[build]
+  command = ""
+  publish = "home"

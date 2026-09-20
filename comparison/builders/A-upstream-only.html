@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en" data-state="funded">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<meta name="description" content="Home — Money screen in funded, loading and pending-deposit states. Select with #funded, #loading or #pending.">
+<title>Home — Money</title>
+<script>
+(function () {
+  var root = document.documentElement;
+  var states = { funded: 1, loading: 1, pending: 1 };
+  function apply() {
+    var h = location.hash.replace("#", "");
+    if (states[h]) { root.setAttribute("data-state", h); }
+    else if (!root.getAttribute("data-state")) { root.setAttribute("data-state", "funded"); }
+  }
+  apply();
+  addEventListener("hashchange", apply);
+})();
+</script>
+<style>
+  :root {
+    --home-ink: #0a0b0d;
+    --home-muted: #5b6270;
+    --home-white: #ffffff;
+    --home-canvas: #f7f8fa;
+    --home-hairline: #e6e8ec;
+    --home-blue: #0052ff;
+    --home-up: #0f7a43;
+    --home-down: #c62828;
+    --home-skeleton: #e6e8ec;
+    --home-skeleton-canvas: #e1e4e9;
+    --control-radius: 8px;
+    --panel-radius: 12px;
+    --gutter: 16px;
+    --tabbar-h: 64px;
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; scroll-behavior: auto; }
+  body {
+    margin: 0;
+    background: var(--home-canvas);
+    color: var(--home-ink);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.4;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+  button { font: inherit; color: inherit; }
+  h1, h2, h3, p, ul { margin: 0; }
+  ul { padding: 0; list-style: none; }
+
+  :focus-visible {
+    outline: 2px solid var(--home-blue);
+    outline-offset: 2px;
+    border-radius: var(--control-radius);
+  }
+
+  .visually-hidden {
+    position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+
+  .money { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .mono { font-family: var(--font-mono); font-size: 0.93em; }
+
+  /* ---------- App frame ---------- */
+  .app {
+    max-width: 390px;
+    margin: 0 auto;
+    min-height: 100dvh;
+    position: relative;
+  }
+  .app-main {
+    padding: 0 var(--gutter) calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px) + 24px);
+  }
+
+  /* ---------- Top bar ---------- */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+  .wordmark {
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .icon-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    margin-right: -6px;
+    border: 1px solid var(--home-hairline);
+    border-radius: 999px;
+    background: var(--home-white);
+    color: var(--home-ink);
+    cursor: pointer;
+    transition: background-color 120ms ease, border-color 120ms ease;
+  }
+  .icon-button:active { background: var(--home-canvas); }
+  .icon-button svg { width: 20px; height: 20px; }
+  .icon-button:focus-visible { border-radius: 999px; }
+
+  /* ---------- Hero (unboxed on canvas) ---------- */
+  .hero {
+    padding: 12px 0 20px;
+  }
+  .hero-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--home-muted);
+    letter-spacing: 0.01em;
+  }
+  .hero-figure {
+    margin-top: 6px;
+    font-size: 44px;
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.025em;
+    color: var(--home-ink);
+  }
+  .hero-figure .currency { color: var(--home-muted); font-weight: 500; }
+  .hero-explain {
+    margin-top: 10px;
+    font-size: 15px;
+    color: var(--home-muted);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 10px;
+  }
+  .hero-explain b { font-weight: 500; color: var(--home-ink); }
+  .hero-explain .sep { color: var(--home-muted); opacity: 0.6; }
+
+  .actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 20px;
+  }
+  .button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: 0 16px;
+    border-radius: var(--control-radius);
+    border: 1px solid transparent;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    cursor: pointer;
+    text-align: center;
+    transition: transform 120ms ease, background-color 120ms ease, border-color 120ms ease, opacity 120ms ease;
+  }
+  .button:active { transform: scale(0.985); }
+  .button-primary {
+    background: var(--home-blue);
+    border-color: var(--home-blue);
+    color: var(--home-white);
+  }
+  .button-primary:active { background: #0046d9; border-color: #0046d9; }
+  .button-outline {
+    background: var(--home-white);
+    border-color: var(--home-hairline);
+    color: var(--home-ink);
+  }
+  .button-outline:active { background: var(--home-canvas); }
+  .button[disabled], .button[aria-disabled="true"] {
+    cursor: default;
+    color: var(--home-muted);
+    background: var(--home-white);
+    border-color: var(--home-hairline);
+  }
+  .button[disabled]:active { transform: none; }
+
+  /* ---------- Pending strip ---------- */
+  .pending {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 56px;
+    margin-top: 16px;
+    padding: 10px 14px;
+    background: var(--home-white);
+    border: 1px solid var(--home-hairline);
+    border-radius: var(--panel-radius);
+  }
+  .pending-copy { min-width: 0; flex: 1; }
+  .pending-title { font-size: 15px; font-weight: 500; }
+  .pending-meta { font-size: 13px; color: var(--home-muted); margin-top: 1px; }
+  .pending-amount { font-size: 15px; font-weight: 500; }
+  .ring {
+    flex: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid var(--home-hairline);
+    border-top-color: var(--home-ink);
+    animation: ring-spin 900ms linear infinite;
+  }
+  @keyframes ring-spin { to { transform: rotate(360deg); } }
+
+  /* ---------- Panels ---------- */
+  .panel {
+    background: var(--home-white);
+    border: 1px solid var(--home-hairline);
+    border-radius: var(--panel-radius);
+    margin-top: 16px;
+    overflow: hidden;
+  }
+  .panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 48px;
+    padding: 4px 16px 0;
+  }
+  .panel-title {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+  }
+  .panel-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 8px;
+    margin-right: -8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--home-muted);
+    border-radius: var(--control-radius);
+  }
+  .panel-link:active { color: var(--home-ink); }
+
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 56px;
+    padding: 10px 16px;
+    border-top: 1px solid var(--home-hairline);
+    transition: background-color 120ms ease;
+  }
+  li:first-child > .row { border-top: 0; }
+  .panel-head + .rows li:first-child > .row { border-top: 1px solid var(--home-hairline); }
+  a.row { cursor: pointer; }
+  a.row:active { background: var(--home-canvas); }
+  a.row:focus-visible { outline-offset: -2px; border-radius: 0; }
+  .row-main { flex: 1; min-width: 0; }
+  .row-title {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--home-ink);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .row-sub {
+    font-size: 13px;
+    color: var(--home-muted);
+    margin-top: 1px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .row-end { text-align: right; flex: none; }
+  .row-amount { font-size: 15px; font-weight: 500; }
+  .row-note { font-size: 13px; color: var(--home-muted); margin-top: 1px; }
+  .row-chev { flex: none; width: 16px; height: 16px; color: var(--home-muted); margin-right: -4px; }
+
+  .row-sub-vault { padding-left: 32px; }
+  .row-sub-vault .row-title { font-weight: 400; }
+  .row-sub-vault .row-amount { font-weight: 400; }
+
+  .media {
+    flex: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--home-canvas);
+    color: var(--home-ink);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .media svg { width: 18px; height: 18px; }
+  .media-pending { color: var(--home-muted); }
+
+  .up { color: var(--home-up); }
+  .down { color: var(--home-down); }
+
+  /* ---------- Skeletons ---------- */
+  .sk {
+    display: block;
+    height: 12px;
+    border-radius: 6px;
+    background: var(--home-skeleton);
+  }
+  .sk-canvas { background: var(--home-skeleton-canvas); }
+  .sk-figure { height: 40px; width: 188px; border-radius: 8px; margin-top: 8px; }
+  .sk-line { height: 14px; width: 220px; margin-top: 14px; }
+  .sk-amount { height: 14px; width: 72px; margin-left: auto; }
+  .sk-rate { height: 12px; width: 56px; margin-left: auto; margin-top: 6px; }
+  .sk-title { height: 14px; width: 150px; }
+  .sk-sub { height: 12px; width: 96px; margin-top: 6px; }
+  .sk-media { width: 36px; height: 36px; border-radius: 50%; flex: none; }
+
+  /* ---------- State switching ---------- */
+  :root[data-state="loading"] .hide-when-loading { display: none !important; }
+  :root:not([data-state="loading"]) .only-loading { display: none !important; }
+  :root:not([data-state="pending"]) .only-pending { display: none !important; }
+
+  /* ---------- Tab bar ---------- */
+  .tabbar {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    margin: 0 auto;
+    max-width: 390px;
+    background: var(--home-white);
+    border-top: 1px solid var(--home-hairline);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .tabbar ul {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    height: var(--tabbar-h);
+  }
+  .tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    height: 100%;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    color: var(--home-muted);
+    transition: color 160ms ease;
+  }
+  .tab svg { width: 24px; height: 24px; }
+  .tab[aria-current="page"] { color: var(--home-blue); }
+  .tab:focus-visible { outline-offset: -3px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .button, .icon-button, .row, .tab { transition: none; }
+    .button:active { transform: none; }
+    .ring { animation: none; }
+  }
+
+  @media (max-width: 340px) {
+    .hero-figure { font-size: 38px; }
+    .button { padding: 0 10px; font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <span class="wordmark" aria-hidden="true">Home</span>
+    <h1 class="visually-hidden">Money</h1>
+    <a class="icon-button" href="#account" aria-label="Account">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="8.5" r="3.5"/>
+        <path d="M4.5 20c.9-3.6 3.7-5.5 7.5-5.5s6.6 1.9 7.5 5.5"/>
+      </svg>
+    </a>
+  </header>
+
+  <main class="app-main" id="main">
+
+    <!-- Hero: primary figure -->
+    <section class="hero" aria-labelledby="net-label">
+      <h2 class="hero-label" id="net-label">Net position</h2>
+
+      <div class="hide-when-loading">
+        <p class="hero-figure money"><span class="currency">$</span>1,250.00</p>
+        <p class="hero-explain">
+          <span><b class="money">$250.00</b> available</span>
+          <span class="sep" aria-hidden="true">·</span>
+          <span><b class="money">$1,000.00</b> saved</span>
+        </p>
+      </div>
+
+      <div class="only-loading" aria-hidden="true">
+        <span class="sk sk-canvas sk-figure"></span>
+        <span class="sk sk-canvas sk-line"></span>
+      </div>
+      <p class="only-loading visually-hidden" role="status">Loading your balances.</p>
+
+      <div class="actions">
+        <a class="button button-primary" href="#add-money">Add money</a>
+        <a class="button button-outline hide-when-loading" href="#save">Move to savings</a>
+        <button class="button button-outline only-loading" type="button" disabled>Move to savings</button>
+      </div>
+
+      <div class="pending only-pending" role="status">
+        <span class="ring" aria-hidden="true"></span>
+        <div class="pending-copy">
+          <p class="pending-title">Saving <span class="money">$100.00</span> into Gauntlet</p>
+          <p class="pending-meta">Submitted 12:03 · Confirming. Balances update when it clears.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Positions -->
+    <section class="panel" aria-labelledby="positions-title">
+      <h2 class="visually-hidden" id="positions-title">Positions</h2>
+
+      <ul class="rows hide-when-loading">
+        <li>
+          <a class="row" href="#cash">
+            <div class="row-main">
+              <p class="row-title">Cash</p>
+              <p class="row-sub">Available now</p>
+            </div>
+            <div class="row-end">
+              <p class="row-amount money">$250.00</p>
+            </div>
+            <svg class="row-chev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5"/></svg>
+          </a>
+        </li>
+        <li>
+          <a class="row" href="#save">
+            <div class="row-main">
+              <p class="row-title">Saved</p>
+              <p class="row-sub">Weighted <span class="money">4.04%</span> APY</p>
+            </div>
+            <div class="row-end">
+              <p class="row-amount money">$1,000.00</p>
+            </div>
+            <svg class="row-chev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5"/></svg>
+          </a>
+        </li>
+        <li>
+          <a class="row row-sub-vault" href="#save/gauntlet">
+            <div class="row-main">
+              <p class="row-title">Gauntlet</p>
+              <p class="row-sub"><span class="money">4.10%</span> APY<span class="only-pending"> · <span class="money">$100.00</span> confirming</span></p>
+            </div>
+            <div class="row-end">
+              <p class="row-amount money">$750.00</p>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a class="row row-sub-vault" href="#save/steakhouse">
+            <div class="row-main">
+              <p class="row-title">Steakhouse</p>
+              <p class="row-sub"><span class="money">3.85%</span> APY</p>
+            </div>
+            <div class="row-end">
+              <p class="row-amount money">$250.00</p>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a class="row row-sub-vault" href="#save/re7">
+            <div class="row-main">
+              <p class="row-title">Re7</p>
+              <p class="row-sub"><span class="money">3.62%</span> APY · Not started</p>
+            </div>
+            <div class="row-end">
+              <p class="row-amount money">$0.00</p>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a class="row" href="#borrow">
+            <div class="row-main">
+              <p class="row-title">Debt</p>
+              <p class="row-sub">Verified · Nothing owed</p>
+            </div>
+            <div class="row-end">
+              <p class="row-amount money">$0.00</p>
+            </div>
+            <svg class="row-chev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5"/></svg>
+          </a>
+        </li>
+      </ul>
+
+      <ul class="rows only-loading" aria-hidden="true">
+        <li>
+          <div class="row">
+            <div class="row-main">
+              <p class="row-title">Cash</p>
+              <p class="row-sub">Available now</p>
+            </div>
+            <div class="row-end"><span class="sk sk-amount"></span></div>
+          </div>
+        </li>
+        <li>
+          <div class="row">
+            <div class="row-main">
+              <p class="row-title">Saved</p>
+              <span class="sk sk-sub" style="width:140px"></span>
+            </div>
+            <div class="row-end"><span class="sk sk-amount"></span></div>
+          </div>
+        </li>
+        <li>
+          <div class="row row-sub-vault">
+            <div class="row-main"><span class="sk sk-title" style="width:88px"></span><span class="sk sk-sub" style="width:64px"></span></div>
+            <div class="row-end"><span class="sk sk-amount" style="width:60px"></span></div>
+          </div>
+        </li>
+        <li>
+          <div class="row row-sub-vault">
+            <div class="row-main"><span class="sk sk-title" style="width:104px"></span><span class="sk sk-sub" style="width:64px"></span></div>
+            <div class="row-end"><span class="sk sk-amount" style="width:60px"></span></div>
+          </div>
+        </li>
+        <li>
+          <div class="row">
+            <div class="row-main">
+              <p class="row-title">Debt</p>
+              <span class="sk sk-sub" style="width:110px"></span>
+            </div>
+            <div class="row-end"><span class="sk sk-amount" style="width:48px"></span></div>
+          </div>
+        </li>
+      </ul>
+    </section>
+
+    <!-- Recent activity -->
+    <section class="panel" aria-labelledby="activity-title">
+      <div class="panel-head">
+        <h2 class="panel-title" id="activity-title">Recent activity</h2>
+        <a class="panel-link" href="#activity">See all</a>
+      </div>
+
+      <ul class="rows hide-when-loading">
+        <li class="only-pending">
+          <a class="row" href="#activity/pending-gauntlet">
+            <span class="media media-pending" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>
+            </span>
+            <div class="row-main">
+              <p class="row-title">Saving into Gauntlet</p>
+              <p class="row-sub">Pending · Submitted 12:03</p>
+            </div>
+            <div class="row-end">
+              <p class="row-amount money">$100.00</p>
+              <p class="row-note">Confirming</p>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a class="row" href="#activity/received-2222">
+            <span class="media" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M17 7 7 17"/><path d="M16 17H7V8"/></svg>
+            </span>
+            <div class="row-main">
+              <p class="row-title">Received from <span class="mono">0x2222…2222</span></p>
+              <p class="row-sub">Today 11:52</p>
+            </div>
+            <div class="row-end">
+              <p class="row-amount money up">+$250.00</p>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a class="row" href="#activity/saved-gauntlet-0912">
+            <span class="media" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="14" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M8 19v1.5M16 19v1.5"/></svg>
+            </span>
+            <div class="row-main">
+              <p class="row-title">Saved into Gauntlet</p>
+              <p class="row-sub">Sep 12</p>
+            </div>
+            <div class="row-end">
+              <p class="row-amount money">$500.00</p>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a class="row" href="#activity/saved-steakhouse-0912">
+            <span class="media" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="14" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M8 19v1.5M16 19v1.5"/></svg>
+            </span>
+            <div class="row-main">
+              <p class="row-title">Saved into Steakhouse</p>
+              <p class="row-sub">Sep 12</p>
+            </div>
+            <div class="row-end">
+              <p class="row-amount money">$250.00</p>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a class="row" href="#activity/saved-gauntlet-0905">
+            <span class="media" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="14" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M8 19v1.5M16 19v1.5"/></svg>
+            </span>
+            <div class="row-main">
+              <p class="row-title">Saved into Gauntlet</p>
+              <p class="row-sub">Sep 5</p>
+            </div>
+            <div class="row-end">
+              <p class="row-amount money">$250.00</p>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a class="row" href="#activity/sent-3333">
+            <span class="media" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>
+            </span>
+            <div class="row-main">
+              <p class="row-title">Sent to <span class="mono">0x3333…3333</span></p>
+              <p class="row-sub">Sep 3</p>
+            </div>
+            <div class="row-end">
+              <p class="row-amount money">−$40.00</p>
+            </div>
+          </a>
+        </li>
+      </ul>
+
+      <ul class="rows only-loading" aria-hidden="true">
+        <li><div class="row"><span class="sk sk-media"></span><div class="row-main"><span class="sk sk-title"></span><span class="sk sk-sub"></span></div><div class="row-end"><span class="sk sk-amount"></span></div></div></li>
+        <li><div class="row"><span class="sk sk-media"></span><div class="row-main"><span class="sk sk-title" style="width:128px"></span><span class="sk sk-sub" style="width:48px"></span></div><div class="row-end"><span class="sk sk-amount" style="width:60px"></span></div></div></li>
+        <li><div class="row"><span class="sk sk-media"></span><div class="row-main"><span class="sk sk-title" style="width:164px"></span><span class="sk sk-sub" style="width:48px"></span></div><div class="row-end"><span class="sk sk-amount" style="width:60px"></span></div></div></li>
+      </ul>
+    </section>
+
+  </main>
+
+  <nav class="tabbar" aria-label="Primary">
+    <ul>
+      <li>
+        <a class="tab" href="#money" aria-current="page">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><path d="M7 15h3"/></svg>
+          Money
+        </a>
+      </li>
+      <li>
+        <a class="tab" href="#activity">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg>
+          Activity
+        </a>
+      </li>
+      <li>
+        <a class="tab" href="#explore">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/></svg>
+          Explore
+        </a>
+      </li>
+    </ul>
+  </nav>
+</div>
+<script>
+(function () {
+  var main = document.getElementById("main");
+  var root = document.documentElement;
+  function sync() {
+    main.setAttribute("aria-busy", root.getAttribute("data-state") === "loading" ? "true" : "false");
+  }
+  sync();
+  addEventListener("hashchange", sync);
+})();
+</script>
+</body>
+</html>

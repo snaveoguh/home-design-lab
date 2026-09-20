@@ -1,0 +1,3 @@
+funded: horizontal overflow 6px
+loading: horizontal overflow 6px
+pending: horizontal overflow 6px

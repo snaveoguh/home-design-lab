@@ -1,0 +1,162 @@
+/* ==========================================================================
+   Home UI foundation — tokens
+   Extends jessepollak/home Direction 1 (locked 2026-09-08). Values that
+   already exist upstream keep their upstream hex. Everything else is new.
+
+   Naming: --h-<role>. Semantic first (ink, canvas, panel), never raw hue names,
+   so a screen never knows whether it is in light or dark.
+   ========================================================================== */
+
+:root {
+  color-scheme: light;
+
+  /* Ground and ink — upstream values */
+  --h-canvas:        #f7f8fa;   /* page behind panels */
+  --h-panel:         #ffffff;   /* white panels on canvas */
+  --h-ink:           #0a0b0d;   /* near-ink, never pure black */
+  --h-muted:         #5b6270;   /* secondary copy */
+  --h-hairline:      #e6e8ec;   /* 1px rules */
+
+  /* New neutrals, cool-biased toward Base blue so greys read chosen */
+  --h-ink-soft:      #2b3038;   /* headings that should not shout */
+  --h-quiet:         #66707f;   /* tertiary: timestamps, helper. 4.7:1 on canvas */
+  --h-well:          #eef0f3;   /* inset surface: numpad keys, chips, skeleton */
+  --h-well-press:    #e2e5ea;   /* the same, pressed */
+  --h-scrim:         rgba(10, 11, 13, 0.44);
+  --h-outline-fill:  transparent;              /* outline buttons get a body in dark */
+
+  /* Accent — the single primary action colour. Nothing else is blue. */
+  --h-blue:          #0052ff;
+  --h-blue-press:    #0046d9;
+  --h-blue-ink:      #ffffff;
+  --h-blue-tint:     rgba(0, 82, 255, 0.08);   /* selected rows, chart fill only */
+
+  /* Semantic. Separate from accent; never decorative. */
+  --h-gain:          #157a45;   /* percent up, confirmed */
+  --h-gain-tint:     rgba(21, 122, 69, 0.10);
+  --h-loss:          #c2313d;   /* percent down, failed */
+  --h-loss-tint:     rgba(194, 49, 61, 0.10);
+  --h-attention:     #9a5b00;   /* pending, needs attention */
+  --h-attention-tint:rgba(154, 91, 0, 0.10);
+
+  /* Focus ring — ink, not blue, so it stays legible on the blue button */
+  --h-focus:         var(--h-ink);
+
+  /* Type */
+  --h-font:          "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --h-font-mono:     "Geist Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  /* Type ramp (size / line-height / tracking). rem so Dynamic Type scales it. */
+  --h-t-balance:     3rem;      --h-l-balance:  1.08;   --h-k-balance:  -0.03em;
+  --h-t-balance-lg:  2.125rem;  --h-l-balance-lg: 1.15; /* long or localized amounts */
+  --h-t-title-lg:    1.75rem;   --h-l-title-lg: 1.2;    --h-k-title-lg: -0.02em;
+  --h-t-title:       1.25rem;   --h-l-title:    1.3;    --h-k-title:    -0.015em;
+  --h-t-headline:    1.0625rem; --h-l-headline: 1.4;    --h-k-headline: -0.01em;
+  --h-t-body:        1rem;      --h-l-body:     1.5;
+  --h-t-secondary:   0.875rem;  --h-l-secondary:1.43;
+  --h-t-caption:     0.75rem;   --h-l-caption:  1.33;
+  --h-t-label:       0.6875rem; --h-l-label:    1.45;   --h-k-label:    0.06em;
+  --h-t-amount:      1.0625rem; /* row amounts, tabular */
+  --h-t-amount-lg:   1.5rem;    /* peer amounts under the balance */
+
+  /* Space — 4pt scale */
+  --h-s-1: 0.25rem;  --h-s-2: 0.5rem;   --h-s-3: 0.75rem;  --h-s-4: 1rem;
+  --h-s-5: 1.25rem;  --h-s-6: 1.5rem;   --h-s-8: 2rem;     --h-s-10: 2.5rem;
+  --h-s-12: 3rem;
+  --h-gutter: 1.25rem;          /* screen side gutter, 20px */
+
+  /* Shape — upstream 8 / 12, plus a sheet radius */
+  --h-r-control: 8px;
+  --h-r-panel:   12px;
+  --h-r-sheet:   20px;
+  --h-r-pill:    999px;
+
+  /* Hit targets — HIG minimum 44, comfortable 48, primary 52 */
+  --h-hit:        2.75rem;
+  --h-hit-lg:     3rem;
+  --h-hit-cta:    3.25rem;
+  --h-row:        3.5rem;       /* list row minimum, 56 */
+  --h-tabbar:     3.5rem;
+
+  /* Motion — upstream limits: tab ≤180, chip ≤120, press 100–160 */
+  --h-ease:        cubic-bezier(0.2, 0, 0, 1);     /* out, optical */
+  --h-ease-in:     cubic-bezier(0.4, 0, 1, 1);
+  --h-d-press:     120ms;
+  --h-d-chip:      120ms;
+  --h-d-tab:       160ms;
+  --h-d-sheet:     220ms;
+  --h-d-fade:      140ms;
+
+  /* Only elevation in the system: the sheet over its scrim. Panels get none. */
+  --h-shadow-sheet: 0 -1px 0 var(--h-hairline);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --h-canvas:        #0b0c0f;
+    --h-panel:         #1a1d23;
+    --h-ink:           #f2f4f7;
+    --h-muted:         #9aa3b2;
+    --h-hairline:      #2f343c;
+    --h-ink-soft:      #d6dae1;
+    --h-quiet:         #828b99;
+    --h-well:          #1d2026;
+    --h-well-press:    #272b32;
+    --h-scrim:         rgba(0, 0, 0, 0.6);
+    --h-outline-fill:  var(--h-well);
+    --h-blue:          #2f6bff;   /* lifted for contrast on dark ground */
+    --h-blue-press:    #4a7dff;
+    --h-blue-ink:      #ffffff;
+    --h-blue-tint:     rgba(47, 107, 255, 0.16);
+    --h-gain:          #3fbf7a;
+    --h-gain-tint:     rgba(63, 191, 122, 0.14);
+    --h-loss:          #ff6b74;
+    --h-loss-tint:     rgba(255, 107, 116, 0.14);
+    --h-attention:     #e8a23c;
+    --h-attention-tint:rgba(232, 162, 60, 0.14);
+    --h-focus:         var(--h-ink);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --h-canvas:        #0b0c0f;
+  --h-panel:         #1a1d23;
+  --h-ink:           #f2f4f7;
+  --h-muted:         #9aa3b2;
+  --h-hairline:      #2f343c;
+  --h-ink-soft:      #d6dae1;
+  --h-quiet:         #828b99;
+  --h-well:          #1d2026;
+  --h-well-press:    #272b32;
+  --h-scrim:         rgba(0, 0, 0, 0.6);
+  --h-outline-fill:  var(--h-well);
+  --h-blue:          #2f6bff;
+  --h-blue-press:    #4a7dff;
+  --h-blue-ink:      #ffffff;
+  --h-blue-tint:     rgba(47, 107, 255, 0.16);
+  --h-gain:          #3fbf7a;
+  --h-gain-tint:     rgba(63, 191, 122, 0.14);
+  --h-loss:          #ff6b74;
+  --h-loss-tint:     rgba(255, 107, 116, 0.14);
+  --h-attention:     #e8a23c;
+  --h-attention-tint:rgba(232, 162, 60, 0.14);
+  --h-focus:         var(--h-ink);
+}
+
+/* Reduced motion: spatial motion off, short opacity kept where it explains state. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --h-d-press: 0ms;
+    --h-d-chip:  0ms;
+    --h-d-tab:   0ms;
+    --h-d-sheet: 0ms;
+  }
+}
+:root[data-motion="reduce"] {
+  --h-d-press: 0ms;
+  --h-d-chip:  0ms;
+  --h-d-tab:   0ms;
+  --h-d-sheet: 0ms;
+}

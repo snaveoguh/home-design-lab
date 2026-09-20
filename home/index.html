@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Home Design Lab</title>
+<meta name="description" content="Mobile-first UI system and screens for a consumer money app on Base. Hand-designed on top of jessepollak/home Direction 1.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="system.css">
+<link rel="stylesheet" href="lab.css">
+<style>
+  :root { --h-safe-bottom: env(safe-area-inset-bottom, 0px); }
+  #screen { display: contents; }
+</style>
+</head>
+<body>
+<div class="lab">
+  <aside class="lab-side" id="side" aria-label="Design lab"></aside>
+  <main class="lab-stage">
+    <div class="lab-frame">
+      <div class="lab-bar" id="lab-bar">
+        <span class="lab-bar-name" id="lab-bar-name">Home design lab</span>
+        <button type="button" data-action="lab-menu">Screens<span aria-hidden="true">▾</span></button>
+      </div>
+      <div class="h-app" id="app">
+        <div id="screen"></div>
+        <div id="tabbar" hidden></div>
+        <div class="h-sheet-root" id="sheet-root"></div>
+        <div class="h-toast-root" id="toast-root"></div>
+      </div>
+    </div>
+  </main>
+</div>
+<script type="module" src="lab.js"></script>
+</body>
+</html>
