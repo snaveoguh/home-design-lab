@@ -73,7 +73,7 @@ A fresh-eyes critique (model, `money-ui-critique` rubric) ran on the first captu
 
 ## Deploy
 
-GitHub Pages serves this repo from `main` (root), with `index.html` redirecting to `home/`. Netlify or any static host works the same way with no build step.
+GitHub Pages serves this repo through `.github/workflows/pages.yml` (Settings → Pages → Source: GitHub Actions), with `index.html` redirecting to `home/`. Netlify or any static host works the same way with no build step.
 
 ## Workflow comparison
 
