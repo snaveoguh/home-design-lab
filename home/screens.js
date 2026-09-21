@@ -38,15 +38,15 @@ export function home(store) {
   const isEmpty = store.homeState === "empty";
   const partialBanner = partial ? banner({ icon: "alert", tone: "attention", title: "Savings balances unavailable", desc: `Cash is current. Saved shows the ${F.timeLabel(F.READ_AT_ISO)} UTC reading.`, action: "retry", actionLabel: "Retry" }) : "";
   const pendingBanner = st.pending ? banner(st.pending.status === "unknown"
-    ? { icon: "alert", tone: "attention", title: `We couldn't confirm a ${F.money(st.pending.amount, region)} deposit`, desc: "Check Activity before sending anything again.", action: "tab", actionLabel: "Activity" }
-    : { icon: "clock", tone: "attention", title: `${F.money(st.pending.amount, region)} deposit is pending`, desc: `Into ${vaultById(st.pending.vault).name}. Nothing has moved yet.`, action: "tab", actionLabel: "View" }
+    ? { icon: "alert", tone: "attention", title: `We couldn't confirm ${F.money(st.pending.amount, region)} to savings`, desc: "Check Activity before moving anything again.", action: "tab", actionLabel: "Activity" }
+    : { icon: "clock", tone: "attention", title: `${F.money(st.pending.amount, region)} to savings is pending`, desc: `Into ${vaultById(st.pending.vault).name}. Nothing has moved yet.`, action: "tab", actionLabel: "Activity" }
   ).replace('data-action="tab"', 'data-action="tab" data-value="activity"') : "";
 
   const positions = panel(rows([
     row({ title: "Cash", desc: isEmpty ? "Add money to start" : "Available to use", amount: F.money(pos.cash, region), action: "go", data: { "data-to": "cash" } }),
     pos.saved === null
       ? row({ title: "Saved", desc: `As of ${F.timeLabel(F.READ_AT_ISO)} UTC · unavailable now`, amount: F.money(last.saved, region), amountTone: "muted", action: "go", data: { "data-to": "save" } })
-      : row({ title: "Saved", desc: isEmpty ? "Earn up to 4.10% in USDC vaults" : `${pos.funded} vault${pos.funded === 1 ? "" : "s"} · ${F.pct(pos.weighted)}`, amount: F.money(pos.saved, region), action: "go", data: { "data-to": "save" } }),
+      : row({ title: "Saved", desc: isEmpty ? "Earn up to 4.10% in USDC vaults" : `${pos.funded} vault${pos.funded === 1 ? "" : "s"} · ${F.pct(pos.weighted)} APY`, amount: F.money(pos.saved, region), action: "go", data: { "data-to": "save" } }),
     row({ title: "Debt", desc: "No debt", amount: F.money(0, region), amountTone: "muted", action: "handoff", data: { "data-entry": "Borrow" } }),
   ], { "data-media": "none" }));
 
@@ -69,11 +69,11 @@ export function home(store) {
       </section>
       <div class="h-peers">
         <div class="h-peer"><span class="h-label">Available to use</span><div class="h-peer-amount h-num"${net.length > 12 ? ' data-size="long"' : ""}>${F.money(pos.cash, region)}</div><div class="h-peer-meta">USDC on Base</div></div>
-        <div class="h-peer"><span class="h-label">Saved</span><div class="h-peer-amount h-num"${net.length > 12 ? ' data-size="long"' : ""}${partial ? ' style="color:var(--h-muted)"' : ""}>${partial ? F.money(last.saved, region) : F.money(pos.saved, region)}</div><div class="h-peer-meta">${partial ? `<span class="h-attention">Unavailable now</span>` : pos.saved ? `${delta(`${F.pct(pos.weighted)} APY`, "up")}` : "Not earning yet"}</div></div>
+        <div class="h-peer"><span class="h-label">Saved</span><div class="h-peer-amount h-num"${net.length > 12 ? ' data-size="long"' : ""}${partial ? ' style="color:var(--h-muted)"' : ""}>${partial ? F.money(last.saved, region) : F.money(pos.saved, region)}</div><div class="h-peer-meta">${partial ? `<span class="h-attention">Unavailable now</span>` : pos.saved ? `${F.pct(pos.weighted)} APY` : "Not earning yet"}</div></div>
       </div>
       ${isEmpty
         ? btn({ label: "Add money", variant: "primary", size: "cta", block: true, action: "handoff", extra: { "data-entry": "Add money" } })
-        : `<div class="h-btn-row">${btn({ label: "Move to savings", variant: "primary", size: "cta", action: "move", disabled: partial })}${btn({ label: "Send", variant: "outline", size: "cta", action: "handoff", extra: { "data-entry": "Send" } })}</div>`}
+        : `<div class="h-btn-row">${btn({ label: "Move to savings", variant: "primary", size: "cta", action: "move", disabled: partial })}${btn({ label: "Add money", variant: "outline", size: "cta", action: "handoff", extra: { "data-entry": "Add money" } })}</div>`}
       ${partialBanner}${pendingBanner}
       <section>${sectionHead("Positions")}${positions}</section>
       <section>${sectionHead("Activity", st.activity.length ? btn({ label: "See all", variant: "quiet", size: "sm", action: "tab", extra: { "data-value": "activity" } }) : "")}${activity}</section>
@@ -121,7 +121,7 @@ export function save(store) {
       <section class="h-hero">
         <span class="h-label">Saved</span>
         ${heroAmount(F.money(pos.saved, region))}
-        <div class="h-hero-meta">${pos.saved ? `${delta(`${F.pct(pos.weighted)} weighted APY`, "up")}<span class="h-dot"></span><span>${pos.funded} of ${st.vaults.length} vaults</span>` : `<span>Not earning yet</span>`}</div>
+        <div class="h-hero-meta">${pos.saved ? `<span>${F.pct(pos.weighted)} weighted APY</span><span class="h-dot"></span><span>${pos.funded} of ${st.vaults.length} vaults</span>` : `<span>Not earning yet</span>`}</div>
       </section>
       <div class="h-btn-row">${btn({ label: "Add to savings", variant: "primary", size: "cta", action: "move" })}${btn({ label: "Withdraw", variant: "outline", size: "cta", action: "handoff", extra: { "data-entry": "Withdraw" }, disabled: !pos.saved })}</div>
       <section>${sectionHead("Vaults")}${panel(rows(vaults))}</section>

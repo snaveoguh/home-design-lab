@@ -50,7 +50,8 @@ Recorded so the next screen inherits them.
 - **Hero → peers → actions → positions → activity.** Net position is the number; available and saved explain it; the two actions sit under the numbers they act on.
 - **Pending is inline, not modal.** One banner on Home, an amber row at the top of Activity, a clock in the media circle.
 - **A word never sits in the number slot.** When savings are unavailable, Home keeps the last known figures in muted ink with an "as of 12:03 UTC" marker and the same amber banner idiom pending uses. Loading skeletons keep the page's geometry, including the buttons and the activity block.
-- **Primary on Home is "Move to savings", secondary is "Send".** Add money is the single primary when the account is empty, and lives in Cash and Explore otherwise. Open product question for Jesse: whether Send deserves a tab of its own, as Cash App and Monzo do.
+- **Primary on Home is "Move to savings", secondary is "Add money".** Send lives in Cash and Explore. An earlier pass swapped Send in; both blind critics flagged the missing funding action, so it came back. Open product question for Jesse: whether Send deserves a tab of its own, as Cash App and Monzo do.
+- **A rate is not a gain.** APY reads in muted ink with no arrow; green and the up arrow are reserved for money that came in or a value that rose.
 - **Positions rows carry no icon wells.** The numbers carry the row, Mercury style. Activity rows keep media because the direction of money is the point, and they drop the chevron because the whole row opens the receipt.
 - **Light quiet grey is #66707f (4.7:1)**, not the #8b93a1 the first pass used, after the critique caught 2.9:1 on zero balances. Dark panels lifted to #1a1d23 with #2f343c hairlines so surfaces stay distinct.
 - **Unknown outcome never offers retry.** It routes to Activity, matching upstream's money invariant.
@@ -66,7 +67,7 @@ Netlify: New site → this repo → `netlify.toml` publishes `home/` with no bui
 
 ## Workflow comparison
 
-`comparison/` holds a blind test: the same Home brief run with the upstream inputs alone, with the upstream inputs plus the four skills here, and the hand-designed lab, judged blind against the real B and C renders from PR #675 by two critics (one with `money-ui-critique`, one with the upstream "coherence and visual character" brief). See `comparison/RESULTS.md`.
+`comparison/` holds a blind test: the same Home brief run with the upstream inputs alone, with the upstream inputs plus the four skills here, and the hand-designed lab, judged blind against the real B and C renders from PR #675 by two critics. Both ranked the lab first and the skills arm second. See `comparison/RESULTS.md`.
 
 ## Workflow options to test with Jesse
 
