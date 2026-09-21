@@ -241,7 +241,7 @@ function sideInner(compact = false) {
 function renderSide() {
   const side = document.getElementById("side");
   if (!side) return;
-  side.innerHTML = `<div class="lab-brand"><strong>Home design lab</strong><span class="h-secondary">Mobile-first UI system for a consumer money app on Base. Fixture data only.</span></div>${sideInner()}<div class="lab-foot h-caption">Hand-designed on top of Direction 1. Numbers mirror the upstream fixture.</div>`;
+  side.innerHTML = `<div class="lab-brand"><strong>Home design lab</strong><span class="h-secondary">Mobile-first UI system for a consumer money app on Base. Fixture data only.</span></div>${sideInner()}<div class="lab-foot h-caption">Agent-built on top of Direction 1. Numbers mirror the upstream fixture.</div>`;
 }
 
 /* ---------- Boot -------------------------------------------------------- */

@@ -1,6 +1,6 @@
 # Home design lab
 
-A mobile-first UI system and set of screens for **Home**, Jesse Pollak's consumer money app on Base, built as a response to [jessepollak/home PR #675](https://github.com/jessepollak/home/pull/675). It is hand-designed on top of his locked Direction 1 tokens and uses his exact fixture numbers, so it compares like for like with his Storybook explorations.
+A mobile-first UI system and set of screens for **Home**, Jesse Pollak's consumer money app on Base, built as a response to [jessepollak/home PR #675](https://github.com/jessepollak/home/pull/675). It was built by an agent, directed from a phone, on top of his locked Direction 1 tokens with one screenshot-and-critique pass and uses his exact fixture numbers, so it compares like for like with his Storybook explorations.
 
 Open it on a phone. That is the review surface.
 

@@ -6,7 +6,7 @@ Critic: a fresh model session given only `critic-rubric.md`, the rubric skill an
 
 | Rank | Label | Entry |
 | --- | --- | --- |
-| 1 | T | Hand-designed lab (this repo) |
+| 1 | T | The lab (this repo): agent-built under the full skill set, one screenshot-and-critique pass |
 | 2 | R | Same brief, upstream inputs **plus** the four skills |
 | 3 | P | Same brief, upstream inputs **only** |
 | 4 | S | Jesse's real treatment B |
