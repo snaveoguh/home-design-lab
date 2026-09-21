@@ -19,7 +19,7 @@ export const store = {
   text: prefs.text || "100",
   width: prefs.width || "390",
   outcome: prefs.outcome || "confirmed",
-  treatment: urlPrefs.treatment || prefs.treatment || "base",
+  treatment: urlPrefs.treatment || prefs.treatment || "glass",
   rolled: false,
   move: { vault: null, amount: "" },
   activityFilter: "all",
@@ -87,8 +87,14 @@ function paint() {
   screenEl.innerHTML = out.view;
   if (path === "home" && !store.rolled && expressiveMotion()) rollBalance();
   mountCompact();
-  tabEl.innerHTML = out.tab ? tabbar(out.tab) : "";
+  if (out.tab && tabEl.querySelector(".h-tabbar")) {
+    for (const t of tabEl.querySelectorAll(".h-tab")) { if (t.dataset.value === out.tab) t.setAttribute("aria-current", "page"); else t.removeAttribute("aria-current"); }
+  } else {
+    tabEl.innerHTML = out.tab ? tabbar(out.tab) : "";
+  }
   tabEl.hidden = !out.tab;
+  if (out.tab) requestAnimationFrame(moveLens);
+  mountParallax();
   if (scroll) screenEl.querySelector(".h-view").scrollTop = scroll;
   if (current !== path) {
     history.push(path);
@@ -108,6 +114,32 @@ function paint() {
     el.textContent = getComputedStyle(document.documentElement).getPropertyValue(el.dataset.token).trim();
   }
   renderSide();
+}
+
+/* Glass treatment: the dock's lens slides to the active tab. */
+function moveLens() {
+  const bar = tabEl.querySelector(".h-tabbar");
+  if (!bar) return;
+  let lens = bar.querySelector(".g-lens");
+  if (store.treatment !== "glass") { lens?.remove(); return; }
+  const active = bar.querySelector('.h-tab[aria-current="page"]');
+  if (!active) return;
+  const fresh = !lens;
+  if (fresh) { lens = document.createElement("span"); lens.className = "g-lens"; lens.setAttribute("aria-hidden", "true"); bar.prepend(lens); }
+  const x = active.offsetLeft, w = active.offsetWidth;
+  if (fresh) lens.style.transition = "none";
+  lens.style.width = `${w}px`; lens.style.transform = `translateX(${x}px)`;
+  if (fresh) requestAnimationFrame(() => { lens.style.transition = ""; });
+}
+window.addEventListener("resize", () => requestAnimationFrame(moveLens));
+
+/* Glass treatment: the hero drifts and fades under the scroll. */
+function mountParallax() {
+  const view = screenEl.querySelector(".h-view");
+  if (!view || store.treatment !== "glass" || !view.querySelector(".h-band .h-hero")) return;
+  const onScroll = () => { view.style.setProperty("--g-scroll", String(Math.max(0, Math.min(320, view.scrollTop)))); };
+  view.addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
 }
 
 /* Base treatment: a compact blue header fades in once the hero has scrolled away. */
@@ -280,7 +312,7 @@ const SCREENS = [
 ];
 const LIB = [["Components", "components"], ["Tokens", "tokens"]];
 const CONTROLS = [
-  ["treatment", "Treatment", [["base", "Base"], ["expressive", "Expressive"], ["quiet", "Quiet"]]],
+  ["treatment", "Treatment", [["glass", "Glass"], ["base", "Base"], ["expressive", "Expressive"], ["quiet", "Quiet"]]],
   ["theme", "Theme", [["system", "System"], ["light", "Light"], ["dark", "Dark"]]],
   ["motion", "Motion", [["normal", "Normal"], ["reduce", "Reduce"]]],
   ["text", "Text size", [["100", "100%"], ["115", "115%"], ["130", "130%"]]],
