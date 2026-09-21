@@ -10,14 +10,16 @@ const readPrefs = () => { try { return JSON.parse(localStorage.getItem(PREF_KEY)
 const writePrefs = (p) => { try { localStorage.setItem(PREF_KEY, JSON.stringify(p)); } catch { /* per-viewer only */ } };
 
 const prefs = readPrefs();
+/* A ?treatment= or ?theme= in the page URL (before the #) wins over saved prefs, so a link can open in a chosen look. */
+const urlPrefs = Object.fromEntries([...new URLSearchParams(location.search)].filter(([k]) => ["treatment", "theme", "motion"].includes(k)));
 export const store = {
   homeState: "funded",
-  theme: prefs.theme || "system",
-  motion: prefs.motion || "normal",
+  theme: urlPrefs.theme || prefs.theme || "system",
+  motion: urlPrefs.motion || prefs.motion || "normal",
   text: prefs.text || "100",
   width: prefs.width || "390",
   outcome: prefs.outcome || "confirmed",
-  treatment: prefs.treatment || "quiet",
+  treatment: urlPrefs.treatment || prefs.treatment || "expressive",
   rolled: false,
   move: { vault: null, amount: "" },
   activityFilter: "all",

@@ -42,7 +42,7 @@ These are the part that transfers. Each is a `SKILL.md` an agent loads before to
 
 ## Two treatments
 
-The Screens menu has a **Treatment** switch.
+The Screens menu has a **Treatment** switch. Expressive is the default; `?treatment=quiet` (or `expressive`, plus `?theme=dark|light`) before the `#` in the URL forces a look for a shared link.
 
 - **Quiet** is Direction 1 to the letter: no gradients, glass, shadows, motion over 180ms, or moving balances. It is the version his rules produce.
 - **Expressive** is a theme-and-motion layer over the same tokens and components (`home/expressive.css`). It deliberately loosens three upstream rules, each named in the file where it happens: a soft glow behind the hero, layered depth on panels and a translucent floating tab dock, and motion above the cap for screen transitions (View Transitions API with the balance carried as a shared element), a spring on the sheet, a one-time balance roll on arrival, and a result mark that draws itself. Explore becomes product cards. Reduced motion removes every part of it.
