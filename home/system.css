@@ -690,3 +690,15 @@ button.h-row:active, a.h-row:active { background: var(--h-well); }
 }
 .h-truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .h-spacer { flex: 1; }
+
+/* ---------- Band and surface (structure shared by every treatment) ------- */
+.h-band { display: flex; flex-direction: column; }
+.h-band > .h-topbar { margin-inline: calc(var(--h-gutter) * -1); padding-inline: calc(var(--h-gutter) - 0.5rem); }
+.h-band > .h-stack { gap: var(--h-s-6); }
+.h-surface { padding-top: var(--h-s-6); }
+.h-wordmark {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  min-height: var(--h-hit); padding-inline: 0.5rem; border: 0; border-radius: var(--h-r-control);
+  background: transparent; color: inherit; -webkit-tap-highlight-color: transparent;
+}
+.h-mark { width: 1rem; height: 1rem; border-radius: 4px; background: var(--h-blue); }

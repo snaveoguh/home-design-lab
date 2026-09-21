@@ -1,0 +1,220 @@
+/* ==========================================================================
+   Treatment 3 — Base
+   One bold, ownable move: Home opens on full-bleed Base blue, the content
+   rides up over it on a white sheet. Fewer effects than Expressive, each
+   one deliberate. Applies under .h-app[data-treatment="base"].
+   Loosened upstream rules, named where they happen: (1) blue as a canvas,
+   not only an action colour; (2) one shadow, on the sheet's top edge;
+   (3) motion above 180ms for push, sheet and the staggered row rise.
+   ========================================================================== */
+
+.h-app[data-treatment="base"] {
+  --b-blue: #0052ff;
+  --b-blue-deep: #0040c8;
+  --b-on-blue: #ffffff;
+  --b-on-blue-soft: rgba(255, 255, 255, 0.72);
+  --b-on-blue-faint: rgba(255, 255, 255, 0.16);
+  --b-on-blue-faint-press: rgba(255, 255, 255, 0.26);
+  --b-sheet-shadow: 0 -12px 40px -16px rgba(0, 0, 0, 0.35);
+  --b-ease: cubic-bezier(0.32, 0.72, 0, 1);      /* iOS push */
+  --b-ease-spring: cubic-bezier(0.34, 1.3, 0.64, 1);
+  --b-d-push: 420ms;
+  --b-d-sheet: 460ms;
+  --h-r-control: 14px;
+  --h-r-panel: 20px;
+  --h-r-sheet: 28px;
+  --h-focus: var(--h-ink);
+  font-feature-settings: "ss01", "cv11", "tnum";
+}
+/* Dark: blue stays, the sheet goes midnight */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .h-app[data-treatment="base"] {
+    --h-canvas: #0b0c0f; --h-panel: #0b0c0f; --h-well: #171a20; --h-well-press: #21252d; --h-hairline: #23272f;
+    --b-sheet-shadow: 0 -12px 40px -16px rgba(0, 0, 0, 0.8);
+  }
+}
+:root[data-theme="dark"] .h-app[data-treatment="base"] {
+  --h-canvas: #0b0c0f; --h-panel: #0b0c0f; --h-well: #171a20; --h-well-press: #21252d; --h-hairline: #23272f;
+  --b-sheet-shadow: 0 -12px 40px -16px rgba(0, 0, 0, 0.8);
+}
+
+/* ---------- The band: blue canvas ---------------------------------------- */
+.h-app[data-treatment="base"] .h-view { padding-inline: 0; background: var(--h-canvas); }
+.h-app[data-treatment="base"] .h-view[data-tabbar="none"] { padding-bottom: var(--h-s-8); }
+.h-app[data-treatment="base"] .h-band {
+  /* Loosened rule 1: blue as canvas. Everything on it is white so blue still means "Home". */
+  background: var(--b-blue); color: var(--b-on-blue);
+  padding: 0 var(--h-gutter) calc(var(--h-s-8) + var(--h-r-sheet));
+}
+.h-app[data-treatment="base"] .h-band > .h-topbar { margin-inline: calc(var(--h-gutter) * -1); }
+.h-app[data-treatment="base"] .h-band .h-topbar-title { color: var(--b-on-blue); }
+.h-app[data-treatment="base"] .h-band .h-iconbtn { color: var(--b-on-blue); }
+.h-app[data-treatment="base"] .h-band .h-iconbtn:active { background: var(--b-on-blue-faint); }
+.h-app[data-treatment="base"] .h-mark { background: var(--b-on-blue); }
+.h-app[data-treatment="base"] .h-band .h-label,
+.h-app[data-treatment="base"] .h-band .h-hero-meta,
+.h-app[data-treatment="base"] .h-band .h-peer-meta,
+.h-app[data-treatment="base"] .h-band .h-caption,
+.h-app[data-treatment="base"] .h-band .h-quiet { color: var(--b-on-blue-soft); }
+.h-app[data-treatment="base"] .h-band .h-hero-meta .h-dot { background: var(--b-on-blue-soft); }
+.h-app[data-treatment="base"] .h-band .h-attention { color: #ffd98a; }
+.h-app[data-treatment="base"] .h-band .h-pill { background: var(--b-on-blue-faint); color: var(--b-on-blue); }
+.h-app[data-treatment="base"] .h-band .h-pill[data-tone="attention"] { background: var(--b-on-blue-faint); color: #ffd98a; }
+.h-app[data-treatment="base"] .h-band .h-skeleton { background: var(--b-on-blue-faint); }
+.h-app[data-treatment="base"] .h-band .h-panel { background: var(--b-blue-deep); border-color: transparent; color: var(--b-on-blue); }
+.h-app[data-treatment="base"] .h-band .h-banner-desc { color: var(--b-on-blue-soft); }
+.h-app[data-treatment="base"] .h-band .h-row-media { background: var(--b-on-blue-faint); color: var(--b-on-blue); }
+
+.h-app[data-treatment="base"] .h-hero { padding-block: var(--h-s-2) 0; gap: var(--h-s-2); }
+.h-app[data-treatment="base"] .h-hero .h-label { font-size: var(--h-t-secondary); font-weight: 500; }
+.h-app[data-treatment="base"] .h-hero-amount {
+  font-size: 4.5rem; line-height: 0.98; letter-spacing: -0.05em; font-weight: 600;
+  display: inline-flex; align-items: flex-start; gap: 0.04em; color: var(--b-on-blue);
+}
+.h-app[data-treatment="base"] .h-hero-amount[data-size="long"] { font-size: 2.75rem; }
+.h-app[data-treatment="base"] .h-hero-amount .h-cents { font-size: 0.4em; font-weight: 500; color: var(--b-on-blue-soft); line-height: 1; margin-top: 0.28em; }
+.h-app[data-treatment="base"] .h-hero-meta { font-size: var(--h-t-secondary); min-height: 1.75rem; }
+
+.h-app[data-treatment="base"] .h-peers { border: 0; padding-block: var(--h-s-2) 0; gap: var(--h-s-6); grid-template-columns: auto auto; justify-content: start; }
+.h-app[data-treatment="base"] .h-peer-amount { font-size: 1.5rem; font-weight: 600; color: var(--b-on-blue); }
+
+/* Actions on blue: one solid white, one translucent white */
+.h-app[data-treatment="base"] .h-band .h-btn {
+  --btn-h: 3.25rem; border-radius: var(--h-r-pill); font-weight: 600;
+  --btn-bg: var(--b-on-blue-faint); --btn-bg-press: var(--b-on-blue-faint-press); --btn-ink: var(--b-on-blue); --btn-border: transparent;
+  transition: background-color 160ms var(--b-ease), transform 160ms var(--b-ease), opacity 160ms;
+}
+.h-app[data-treatment="base"] .h-band .h-btn:active { transform: scale(0.98); }
+.h-app[data-treatment="base"] .h-band .h-btn[data-variant="primary"] { --btn-bg: var(--b-on-blue); --btn-bg-press: #e9eefb; --btn-ink: var(--b-blue); box-shadow: none; }
+.h-app[data-treatment="base"] .h-band .h-btn[data-variant="outline"],
+.h-app[data-treatment="base"] .h-band .h-btn[data-variant="quiet"] { --btn-bg: var(--b-on-blue-faint); --btn-ink: var(--b-on-blue); }
+.h-app[data-treatment="base"] .h-band .h-btn[disabled] { opacity: 0.5; }
+.h-app[data-treatment="base"] .h-band :focus-visible { outline-color: var(--b-on-blue); }
+
+/* ---------- The surface: one sheet, no stacked cards --------------------- */
+.h-app[data-treatment="base"] .h-surface {
+  /* Loosened rule 2: a single shadow where the sheet lifts off the blue. */
+  position: relative; margin-top: calc(var(--h-r-sheet) * -1);
+  background: var(--h-panel); border-radius: var(--h-r-sheet) var(--h-r-sheet) 0 0;
+  box-shadow: var(--b-sheet-shadow);
+  padding: var(--h-s-6) var(--h-gutter) var(--h-s-4);
+  min-height: 60vh;
+}
+.h-app[data-treatment="base"] .h-surface > .h-stack { gap: var(--h-s-8); }
+.h-app[data-treatment="base"] .h-surface .h-section-head { padding-bottom: var(--h-s-2); min-height: 2.5rem; }
+.h-app[data-treatment="base"] .h-surface .h-section-head .h-headline {
+  font-size: var(--h-t-label); letter-spacing: var(--h-k-label); text-transform: uppercase; font-weight: 700; color: var(--h-quiet);
+}
+.h-app[data-treatment="base"] .h-surface .h-panel { background: transparent; border: 0; border-radius: 0; box-shadow: none; }
+.h-app[data-treatment="base"] .h-surface .h-panel > .h-rows > .h-row { padding-inline: 0; min-height: 4rem; border-radius: 0; }
+.h-app[data-treatment="base"] .h-surface .h-panel > .h-rows > * + *::before { left: 0; }
+.h-app[data-treatment="base"] .h-surface .h-panel > .h-rows[data-media="none"] > * + *::before { left: 0; }
+.h-app[data-treatment="base"] .h-surface .h-panel > .h-rows > .h-row:first-child { padding-top: 0; min-height: 3.5rem; }
+.h-app[data-treatment="base"] .h-surface .h-row-title { font-size: var(--h-t-headline); font-weight: 600; }
+.h-app[data-treatment="base"] .h-surface .h-row-amount { font-size: var(--h-t-headline); font-weight: 600; }
+.h-app[data-treatment="base"] .h-surface .h-row-media { width: 2.25rem; height: 2.25rem; }
+.h-app[data-treatment="base"] .h-surface .h-row-chevron { display: none; }
+.h-app[data-treatment="base"] .h-surface button.h-row:active { background: transparent; opacity: 0.6; transition: opacity 120ms; }
+.h-app[data-treatment="base"] .h-surface .h-panel[data-inset] { padding-inline: 0; }
+.h-app[data-treatment="base"] .h-surface .h-empty { padding-inline: 0; align-items: flex-start; text-align: left; }
+
+/* Rows rise in when a screen paints. Loosened rule 3, gently: 240ms, 30ms stagger, first eight only. */
+.h-app[data-treatment="base"] .h-surface .h-rows > * { animation: b-rise 240ms var(--b-ease) both; animation-delay: calc(var(--b-i, 0) * 30ms); }
+.h-app[data-treatment="base"] .h-surface .h-rows > *:nth-child(1) { --b-i: 0; } .h-app[data-treatment="base"] .h-surface .h-rows > *:nth-child(2) { --b-i: 1; }
+.h-app[data-treatment="base"] .h-surface .h-rows > *:nth-child(3) { --b-i: 2; } .h-app[data-treatment="base"] .h-surface .h-rows > *:nth-child(4) { --b-i: 3; }
+.h-app[data-treatment="base"] .h-surface .h-rows > *:nth-child(5) { --b-i: 4; } .h-app[data-treatment="base"] .h-surface .h-rows > *:nth-child(6) { --b-i: 5; }
+.h-app[data-treatment="base"] .h-surface .h-rows > *:nth-child(7) { --b-i: 6; } .h-app[data-treatment="base"] .h-surface .h-rows > *:nth-child(8) { --b-i: 7; }
+@keyframes b-rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* ---------- Compact header on scroll ------------------------------------ */
+.h-app[data-treatment="base"] .b-compact {
+  position: absolute; top: 0; left: 0; right: 0; z-index: 5;
+  display: grid; grid-template-columns: 1fr auto; align-items: center; gap: var(--h-s-3);
+  min-height: 3.5rem; padding-inline: var(--h-gutter);
+  background: var(--b-blue); color: var(--b-on-blue);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  opacity: 0; transform: translateY(-6px); pointer-events: none;
+  transition: opacity 180ms var(--b-ease), transform 180ms var(--b-ease);
+}
+.h-app[data-treatment="base"] .b-compact[data-visible] { opacity: 1; transform: none; pointer-events: auto; }
+.h-app[data-treatment="base"] .b-compact .h-headline { font-weight: 600; }
+.h-app[data-treatment="base"] .b-compact .h-num { font-weight: 600; font-size: var(--h-t-headline); }
+
+/* ---------- Screens without a band (Activity, Explore, flows) ----------- */
+.h-app[data-treatment="base"] .h-view > .h-stack:first-child,
+.h-app[data-treatment="base"] .h-view > .h-topbar:first-child ~ .h-stack,
+.h-app[data-treatment="base"] .h-view > .h-topbar:first-child ~ .h-amount-entry,
+.h-app[data-treatment="base"] .h-view > .h-topbar:first-child ~ .h-chips,
+.h-app[data-treatment="base"] .h-view > .h-topbar:first-child ~ .h-numpad,
+.h-app[data-treatment="base"] .h-view > .h-topbar:first-child ~ .h-btn,
+.h-app[data-treatment="base"] .h-view > .h-topbar:first-child ~ .h-panel,
+.h-app[data-treatment="base"] .h-view > .h-topbar:first-child ~ .h-steps { margin-inline: var(--h-gutter); }
+.h-app[data-treatment="base"] .h-view > .h-topbar:first-child { padding-inline: calc(var(--h-gutter) - 0.5rem); }
+.h-app[data-treatment="base"] .h-view[style*="flex-direction:column"] > .h-spacer { flex: 1; }
+.h-app[data-treatment="base"] .h-large-title { font-size: 2.25rem; font-weight: 700; letter-spacing: -0.035em; }
+.h-app[data-treatment="base"] .h-btn[data-size="cta"] { --btn-h: 3.5rem; border-radius: var(--h-r-pill); }
+.h-app[data-treatment="base"] .h-btn { transition: background-color 160ms var(--b-ease), transform 160ms var(--b-ease), opacity 160ms; }
+.h-app[data-treatment="base"] .h-btn:active { transform: scale(0.98); }
+.h-app[data-treatment="base"] .h-chip { border-radius: var(--h-r-pill); }
+.h-app[data-treatment="base"] .h-seg { border-radius: var(--h-r-pill); }
+.h-app[data-treatment="base"] .h-seg > button { border-radius: var(--h-r-pill); }
+.h-app[data-treatment="base"] .h-view:not(:has(.h-band)) .h-panel { border-radius: var(--h-r-panel); }
+.h-app[data-treatment="base"] .h-result-mark { width: 5.5rem; height: 5.5rem; background: var(--b-blue); color: var(--b-on-blue); animation: b-pop 480ms var(--b-ease-spring) both; }
+.h-app[data-treatment="base"] .h-result-mark[data-tone="loss"] { background: var(--h-loss); }
+.h-app[data-treatment="base"] .h-result-mark[data-tone="attention"] { background: var(--h-attention); }
+.h-app[data-treatment="base"] .h-result-mark svg { width: 2.5rem; height: 2.5rem; }
+.h-app[data-treatment="base"] .h-result-mark svg path { stroke-dasharray: 80; stroke-dashoffset: 80; animation: b-draw 520ms 180ms var(--b-ease) forwards; }
+.h-app[data-treatment="base"] .h-result .h-title { font-size: 1.625rem; letter-spacing: -0.03em; }
+@keyframes b-pop { from { transform: scale(0.7); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes b-draw { to { stroke-dashoffset: 0; } }
+
+/* Explore cards in Base: the hero card is blue */
+.h-app[data-treatment="base"] .x-cards { margin-inline: var(--h-gutter); }
+.h-app[data-treatment="base"] .x-card { border-radius: var(--h-r-panel); box-shadow: none; }
+.h-app[data-treatment="base"] .x-card[data-tone="blue"] { background: var(--b-blue); color: var(--b-on-blue); border-color: var(--b-blue); }
+.h-app[data-treatment="base"] .x-card[data-tone="blue"] .x-card-desc { opacity: 0.8; }
+
+/* ---------- Tab dock ---------------------------------------------------- */
+.h-app[data-treatment="base"] .h-tabbar {
+  left: var(--h-gutter); right: var(--h-gutter); bottom: calc(var(--h-s-4) + var(--h-safe-bottom, 0px));
+  min-height: 3.75rem; padding: 0.375rem; padding-bottom: 0.375rem;
+  border: 1px solid var(--h-hairline); border-radius: var(--h-r-pill);
+  background: var(--h-panel);
+  box-shadow: 0 10px 30px -12px rgba(10, 11, 13, 0.35);
+}
+.h-app[data-treatment="base"] .h-tab { min-height: 3rem; border-radius: var(--h-r-pill); font-weight: 700; gap: 3px; }
+.h-app[data-treatment="base"] .h-tab[aria-current="page"] { background: var(--b-blue); color: var(--b-on-blue); }
+.h-app[data-treatment="base"] .h-view { padding-bottom: calc(var(--h-tabbar) + var(--h-s-12)); }
+.h-app[data-treatment="base"] .h-toast-root { bottom: calc(var(--h-tabbar) + var(--h-s-10) + var(--h-safe-bottom, 0px)); }
+
+/* ---------- Sheet ------------------------------------------------------- */
+.h-app[data-treatment="base"] .h-sheet { transition: transform var(--b-d-sheet) var(--b-ease-spring); box-shadow: 0 -8px 40px -12px rgba(10, 11, 13, 0.3); }
+.h-app[data-treatment="base"] .h-scrim { transition-duration: 300ms; }
+
+/* ---------- Push transition with parallax ------------------------------- */
+:root[data-treatment="base"]::view-transition-old(root), :root[data-treatment="base"]::view-transition-new(root) { animation-duration: 420ms; animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1); }
+:root[data-treatment="base"]::view-transition-new(root) { animation-name: b-push-in; }
+:root[data-treatment="base"]::view-transition-old(root) { animation-name: b-push-under; }
+:root[data-treatment="base"][data-nav="back"]::view-transition-new(root) { animation-name: b-pop-in; }
+:root[data-treatment="base"][data-nav="back"]::view-transition-old(root) { animation-name: b-pop-out; }
+:root[data-treatment="base"][data-nav="tab"]::view-transition-new(root) { animation-name: b-fade-in; animation-duration: 200ms; }
+:root[data-treatment="base"][data-nav="tab"]::view-transition-old(root) { animation-name: b-fade-out; animation-duration: 200ms; }
+@keyframes b-push-in { from { transform: translateX(100%); box-shadow: -12px 0 32px rgba(0,0,0,0.18); } to { transform: none; box-shadow: -12px 0 32px rgba(0,0,0,0); } }
+@keyframes b-push-under { to { transform: translateX(-28%); filter: brightness(0.92); } }
+@keyframes b-pop-in { from { transform: translateX(-28%); filter: brightness(0.92); } to { transform: none; } }
+@keyframes b-pop-out { to { transform: translateX(100%); box-shadow: -12px 0 32px rgba(0,0,0,0.18); } }
+@keyframes b-fade-in { from { opacity: 0; } }
+@keyframes b-fade-out { to { opacity: 0; } }
+
+/* ---------- Reduced motion ---------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .h-app[data-treatment="base"] .h-surface .h-rows > *, .h-app[data-treatment="base"] .h-result-mark, .h-app[data-treatment="base"] .h-result-mark svg path { animation: none; stroke-dashoffset: 0; }
+  .h-app[data-treatment="base"] .h-btn, .h-app[data-treatment="base"] .h-band .h-btn { transition: none; transform: none !important; }
+  :root[data-treatment="base"]::view-transition-old(root), :root[data-treatment="base"]::view-transition-new(root) { animation: none; }
+}
+:root[data-motion="reduce"] .h-app[data-treatment="base"] .h-surface .h-rows > *, :root[data-motion="reduce"] .h-app[data-treatment="base"] .h-result-mark, :root[data-motion="reduce"] .h-app[data-treatment="base"] .h-result-mark svg path { animation: none; stroke-dashoffset: 0; }
+:root[data-motion="reduce"] .h-app[data-treatment="base"] .h-btn { transition: none; transform: none !important; }
+:root[data-motion="reduce"][data-treatment="base"]::view-transition-old(root), :root[data-motion="reduce"][data-treatment="base"]::view-transition-new(root) { animation: none; }
+
+/* Only the band's balance is a shared element; the gallery renders more than one hero. */
+.h-app[data-treatment="base"] .h-band .h-hero-amount { view-transition-name: balance; }

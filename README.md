@@ -13,7 +13,7 @@ cd home && python3 -m http.server 4173
 # then open http://127.0.0.1:4173/
 ```
 
-On a laptop you get a 390 wide frame with a sidebar of screens, states and controls (theme, reduced motion, text size, move outcome, frame width). On a phone the app is full-bleed with a black lab bar at the top; tap **Screens** to switch.
+On a laptop you get a 390 wide frame with a sidebar of screens, states and controls (theme, reduced motion, text size, move outcome, frame width). On a phone the app is full-bleed with no chrome; tap the **Home** wordmark, or open `#/lab`, for the menu of screens, states and controls.
 
 Deep links: `#/home?state=funded|pending|unknown|partial|empty|loading|large`, `#/save`, `#/cash`, `#/move/destination`, `#/activity`, `#/explore`, `#/account`, `#/components`, `#/tokens`.
 
@@ -42,8 +42,9 @@ These are the part that transfers. Each is a `SKILL.md` an agent loads before to
 
 ## Two treatments
 
-The Screens menu has a **Treatment** switch. Expressive is the default; `?treatment=quiet` (or `expressive`, plus `?theme=dark|light`) before the `#` in the URL forces a look for a shared link.
+The Screens menu has a **Treatment** switch. Base is the default; `?treatment=quiet` (or `expressive`, plus `?theme=dark|light`) before the `#` in the URL forces a look for a shared link.
 
+- **Base** is the one bold, ownable move: Home opens on full-bleed Base blue with the balance in white, and the content rides up over it on a sheet. One continuous surface instead of stacked cards, eyebrow section labels, a compact blue header that fades in on scroll, an iOS-style push with parallax, rows that rise in with a 30ms stagger, a floating dock. Three upstream rules loosened and named in `home/base.css`: blue as canvas, one shadow on the sheet edge, motion above the cap.
 - **Quiet** is Direction 1 to the letter: no gradients, glass, shadows, motion over 180ms, or moving balances. It is the version his rules produce.
 - **Expressive** is a theme-and-motion layer over the same tokens and components (`home/expressive.css`). It deliberately loosens three upstream rules, each named in the file where it happens: a soft glow behind the hero, layered depth on panels and a translucent floating tab dock, and motion above the cap for screen transitions (View Transitions API with the balance carried as a shared element), a spring on the sheet, a one-time balance roll on arrival, and a result mark that draws itself. Explore becomes product cards. Reduced motion removes every part of it.
 

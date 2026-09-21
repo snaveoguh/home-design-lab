@@ -19,7 +19,7 @@ export const store = {
   text: prefs.text || "100",
   width: prefs.width || "390",
   outcome: prefs.outcome || "confirmed",
-  treatment: urlPrefs.treatment || prefs.treatment || "expressive",
+  treatment: urlPrefs.treatment || prefs.treatment || "base",
   rolled: false,
   move: { vault: null, amount: "" },
   activityFilter: "all",
@@ -36,6 +36,7 @@ const ROUTES = {
   components: (s) => G.components(s), tokens: () => G.tokens(),
   "move/destination": (s) => S.move(s, "destination"), "move/amount": (s) => S.move(s, "amount"),
   "move/review": (s) => S.move(s, "review"), "move/pending": (s) => S.move(s, "pending"), "move/result": (s) => S.move(s, "result"),
+  lab: (s) => { setTimeout(() => actions["lab-menu"](), 0); return S.home(s); },
 };
 const history = [];
 function parse() {
@@ -64,14 +65,14 @@ const screenEl = document.getElementById("screen");
 const tabEl = document.getElementById("tabbar");
 let current = null;
 
-const expressiveMotion = () => store.treatment === "expressive" && store.motion !== "reduce" && !matchMedia("(prefers-reduced-motion: reduce)").matches;
+const expressiveMotion = () => store.treatment !== "quiet" && store.motion !== "reduce" && !matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 function render() {
   const { path } = parse();
   const isNav = current !== null && current !== path;
   if (isNav && expressiveMotion() && document.startViewTransition) {
     const depthOf = (p) => (p === "home" || p === "activity" || p === "explore" ? 0 : p.startsWith("move/") ? 2 : 1);
-    document.documentElement.dataset.nav = depthOf(path) < depthOf(current) ? "back" : "forward";
+    document.documentElement.dataset.nav = depthOf(path) === 0 && depthOf(current) === 0 ? "tab" : depthOf(path) < depthOf(current) ? "back" : "forward";
     document.startViewTransition(() => paint()).finished.finally(() => { delete document.documentElement.dataset.nav; });
   } else {
     paint();
@@ -85,6 +86,7 @@ function paint() {
   const scroll = current === path ? screenEl.querySelector(".h-view")?.scrollTop : 0;
   screenEl.innerHTML = out.view;
   if (path === "home" && !store.rolled && expressiveMotion()) rollBalance();
+  mountCompact();
   tabEl.innerHTML = out.tab ? tabbar(out.tab) : "";
   tabEl.hidden = !out.tab;
   if (scroll) screenEl.querySelector(".h-view").scrollTop = scroll;
@@ -100,12 +102,29 @@ function paint() {
   if (name) {
     const screen = path.replace("move/", "Save · ").replace(/^([a-z])/, (m) => m.toUpperCase());
     const stateLabel = F.HOME_STATES[store.homeState].label;
-    name.textContent = `${path === "home" || store.homeState !== "funded" ? `${screen} · ${stateLabel}` : screen}${store.treatment === "expressive" ? " · Expressive" : ""}`;
+    name.textContent = `${path === "home" || store.homeState !== "funded" ? `${screen} · ${stateLabel}` : screen} · ${store.treatment[0].toUpperCase()}${store.treatment.slice(1)}`;
   }
   for (const el of screenEl.querySelectorAll("[data-token]")) {
     el.textContent = getComputedStyle(document.documentElement).getPropertyValue(el.dataset.token).trim();
   }
   renderSide();
+}
+
+/* Base treatment: a compact blue header fades in once the hero has scrolled away. */
+function mountCompact() {
+  const view = screenEl.querySelector(".h-view");
+  const band = view?.querySelector(".h-band");
+  const amount = band?.querySelector(".h-hero-amount");
+  if (!view || !band || !amount || store.treatment !== "base") return;
+  const title = band.querySelector(".h-topbar-title, .h-wordmark .h-headline")?.textContent?.trim() || "Home";
+  const bar = document.createElement("div");
+  bar.className = "b-compact";
+  bar.innerHTML = `<span class="h-headline">${esc(title)}</span><span class="h-num">${esc(amount.textContent.trim())}</span>`;
+  screenEl.appendChild(bar);
+  const threshold = amount.offsetTop + amount.offsetHeight - 16;
+  const onScroll = () => { if (view.scrollTop > threshold) bar.dataset.visible = "true"; else delete bar.dataset.visible; };
+  view.addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
 }
 
 /* One-time balance roll on first arrival, expressive only. Balances otherwise never move. */
@@ -250,6 +269,7 @@ function applyPrefs() {
   root.style.fontSize = `${store.text}%`;
   root.style.setProperty("--lab-w", `${store.width}px`);
   app.dataset.treatment = store.treatment;
+  root.dataset.treatment = store.treatment;
 }
 
 const SCREENS = [
@@ -260,7 +280,7 @@ const SCREENS = [
 ];
 const LIB = [["Components", "components"], ["Tokens", "tokens"]];
 const CONTROLS = [
-  ["treatment", "Treatment", [["quiet", "Quiet"], ["expressive", "Expressive"]]],
+  ["treatment", "Treatment", [["base", "Base"], ["expressive", "Expressive"], ["quiet", "Quiet"]]],
   ["theme", "Theme", [["system", "System"], ["light", "Light"], ["dark", "Dark"]]],
   ["motion", "Motion", [["normal", "Normal"], ["reduce", "Reduce"]]],
   ["text", "Text size", [["100", "100%"], ["115", "115%"], ["130", "130%"]]],
@@ -287,7 +307,7 @@ function sideInner(compact = false) {
 function renderSide() {
   const side = document.getElementById("side");
   if (!side) return;
-  side.innerHTML = `<div class="lab-brand"><strong>Home design lab</strong><span class="h-secondary">Mobile-first UI system for a consumer money app on Base. Fixture data only.</span></div>${sideInner()}<div class="lab-foot h-caption">Agent-built on top of Direction 1. Numbers mirror the upstream fixture.</div>`;
+  side.innerHTML = `<div class="lab-brand"><strong>Home design lab</strong><span class="h-secondary">Mobile-first UI system for a consumer money app on Base. Fixture data only.</span></div>${sideInner()}<div class="lab-foot h-caption">Agent-built on top of Direction 1. Numbers mirror the upstream fixture. On a phone, tap the Home wordmark or open #/lab for this menu.</div>`;
 }
 
 /* ---------- Boot -------------------------------------------------------- */

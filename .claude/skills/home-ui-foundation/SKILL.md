@@ -54,7 +54,7 @@ Upstream limits are law: press 120ms, chip 120ms, tab 160ms, fade 140ms, sheet 2
 
 ## Treatments
 
-The tokens and components support two treatments. **Quiet** is the default and is Direction 1 exactly. **Expressive** (`home/expressive.css`, applied under `.h-app[data-treatment="expressive"]`) loosens three named rules for a more consumer-app feel: a radial wash behind the hero, low cool shadows on panels plus a translucent floating tab dock, and motion above the 180ms cap for screen transitions, the sheet spring, a one-time balance roll and the result mark. Loosen a rule only in a treatment file, never in the base, and name the rule you are loosening in a comment where it happens. Reduced motion must remove all of it.
+The tokens and components support three treatments. **Base** (`home/base.css`) is the default: Home opens on a full-bleed Base blue band with white type and the content sheet rides over it; one surface, eyebrow section labels, no stacked cards, a compact header on scroll, push-with-parallax transitions and a staggered row rise. It loosens three named rules: blue as canvas, one shadow on the sheet edge, motion above the cap. **Quiet** is Direction 1 exactly. **Expressive** (`home/expressive.css`, applied under `.h-app[data-treatment="expressive"]`) loosens three named rules for a more consumer-app feel: a radial wash behind the hero, low cool shadows on panels plus a translucent floating tab dock, and motion above the 180ms cap for screen transitions, the sheet spring, a one-time balance roll and the result mark. Loosen a rule only in a treatment file, never in the base, and name the rule you are loosening in a comment where it happens. Reduced motion must remove all of it.
 
 ## Porting to Tailwind v4 / shadcn
 

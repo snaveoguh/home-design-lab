@@ -55,7 +55,6 @@
 .h-app[data-treatment="expressive"] .h-hero-amount {
   font-size: 4rem; line-height: 1; letter-spacing: -0.045em; font-weight: 600;
   display: inline-flex; align-items: flex-start; gap: 0.06em;
-  view-transition-name: balance;
 }
 .h-app[data-treatment="expressive"] .h-hero-amount[data-size="long"] { font-size: 2.5rem; }
 .h-app[data-treatment="expressive"] .h-hero-amount .h-cents {
@@ -175,3 +174,6 @@
 :root[data-motion="reduce"] .h-app[data-treatment="expressive"] .h-btn, :root[data-motion="reduce"] .h-app[data-treatment="expressive"] .h-chip, :root[data-motion="reduce"] .h-app[data-treatment="expressive"] button.h-row, :root[data-motion="reduce"] .x-card { transition: none; transform: none !important; }
 :root[data-motion="reduce"] .h-app[data-treatment="expressive"] .h-result-mark, :root[data-motion="reduce"] .h-app[data-treatment="expressive"] .h-result-mark svg path, :root[data-motion="reduce"] .h-app[data-treatment="expressive"] .h-skeleton { animation: none; stroke-dashoffset: 0; }
 :root[data-motion="reduce"]::view-transition-old(root), :root[data-motion="reduce"]::view-transition-new(root), :root[data-motion="reduce"]::view-transition-group(balance) { animation: none; }
+
+/* Only the band's balance is a shared element; the gallery renders more than one hero. */
+.h-app[data-treatment="expressive"] .h-band .h-hero-amount { view-transition-name: balance; }

@@ -9,12 +9,12 @@ const initial = (name) => name.slice(0, 1).toUpperCase();
 export function home(store) {
   const st = F.HOME_STATES[store.homeState] || F.HOME_STATES.funded;
   const region = st.region;
-  const top = topbar({ lead: `<span class="h-headline" style="padding-left:.5rem">Home</span>`, trail: iconBtn({ name: "user", label: "Account", action: "go", extra: { "data-to": "account" } }) });
+  const top = topbar({ lead: `<button type="button" class="h-wordmark" data-action="lab-menu" aria-label="Home. Double-tap opens the design lab menu"><span class="h-mark" aria-hidden="true"></span><span class="h-headline">Home</span></button>`, trail: iconBtn({ name: "user", label: "Account", action: "go", extra: { "data-to": "account" } }) });
 
   if (st.loading) {
     return {
       tab: "home",
-      view: `${top}<div class="h-view"><div class="h-stack">
+      view: `<div class="h-view"><div class="h-band">${top}<div class="h-stack">
         <section class="h-hero" aria-busy="true" aria-label="Net position, loading">
           <span class="h-label">Net position</span>
           ${skeleton("11ch", "3.25rem")}
@@ -25,9 +25,10 @@ export function home(store) {
           <div class="h-peer"><span class="h-label">Saved</span>${skeleton("8ch", "1.5rem")}<div class="h-peer-meta">${skeleton("5ch", "0.75rem")}</div></div>
         </div>
         <div class="h-btn-row">${skeleton("100%", "3.25rem")}${skeleton("100%", "3.25rem")}</div>
+        </div></div><div class="h-surface"><div class="h-stack">
         <section>${sectionHead("Positions")}${panel(rows([1, 2, 3].map(() => row({ title: "", desc: "", amount: "" })).map((r) => r.replace('<div class="h-row-title"></div>', `<div class="h-row-title">${skeleton("6ch")}</div>`).replace('<div class="h-row-amount h-num"><span></span></div>', `<div class="h-row-amount h-num">${skeleton("6ch")}</div>`)), { "data-media": "none" }))}</section>
         <section>${sectionHead("Activity")}${panel(rows([1, 2].map(() => row({ media: skeleton("2.5rem", "2.5rem", "circle"), title: "", desc: "", amount: "" })).map((r) => r.replace('<div class="h-row-title"></div>', `<div class="h-row-title">${skeleton("8ch")}</div>`).replace('<div class="h-row-amount h-num"><span></span></div>', `<div class="h-row-amount h-num">${skeleton("6ch")}</div>`))))}</section>
-      </div></div>`,
+      </div></div></div>`,
     };
   }
 
@@ -63,7 +64,7 @@ export function home(store) {
 
   return {
     tab: "home",
-    view: `${top}<div class="h-view"><div class="h-stack">
+    view: `<div class="h-view"><div class="h-band">${top}<div class="h-stack">
       <section class="h-hero" aria-labelledby="net-label">
         <span class="h-label" id="net-label">Net position</span>
         ${heroAmount(net)}
@@ -77,9 +78,10 @@ export function home(store) {
         ? btn({ label: "Add money", variant: "primary", size: "cta", block: true, action: "handoff", extra: { "data-entry": "Add money" } })
         : `<div class="h-btn-row">${btn({ label: "Move to savings", variant: "primary", size: "cta", action: "move", disabled: partial })}${btn({ label: "Add money", variant: "outline", size: "cta", action: "handoff", extra: { "data-entry": "Add money" } })}</div>`}
       ${partialBanner}${pendingBanner}
+      </div></div><div class="h-surface"><div class="h-stack">
       <section>${sectionHead("Positions")}${positions}</section>
       <section>${sectionHead("Activity", st.activity.length ? btn({ label: "See all", variant: "quiet", size: "sm", action: "tab", extra: { "data-value": "activity" } }) : "")}${activity}</section>
-    </div></div>`,
+    </div></div></div>`,
   };
 }
 
@@ -119,13 +121,14 @@ export function save(store) {
   }));
   return {
     tab: null,
-    view: `${top}<div class="h-view" data-tabbar="none"><div class="h-stack">
+    view: `<div class="h-view" data-tabbar="none"><div class="h-band">${top}<div class="h-stack">
       <section class="h-hero">
         <span class="h-label">Saved</span>
         ${heroAmount(F.money(pos.saved, region))}
         <div class="h-hero-meta">${pos.saved ? `<span>${F.pct(pos.weighted)} weighted APY</span><span class="h-dot"></span><span>${pos.funded} of ${st.vaults.length} vaults</span>` : `<span>Not earning yet</span>`}</div>
       </section>
       <div class="h-btn-row">${btn({ label: "Add to savings", variant: "primary", size: "cta", action: "move" })}${btn({ label: "Withdraw", variant: "outline", size: "cta", action: "handoff", extra: { "data-entry": "Withdraw" }, disabled: !pos.saved })}</div>
+      </div></div><div class="h-surface"><div class="h-stack">
       <section>${sectionHead("Vaults")}${panel(rows(vaults))}</section>
       <section>${sectionHead("How it's counted")}${panel(facts([
         ["Saved", F.money(pos.saved, region)],
@@ -134,7 +137,7 @@ export function save(store) {
         ["Network", "Base"],
       ]), { "data-inset": true, style: "padding-block:0" })}</section>
       <p class="h-caption" style="padding-inline:.25rem">Rates are reported by each vault and change. They are not a promise of return.</p>
-    </div></div>`,
+    </div></div></div>`,
   };
 }
 
@@ -145,12 +148,13 @@ export function cash(store) {
   const region = st.region;
   return {
     tab: null,
-    view: `${topbar({ title: "Cash", lead: backBtn() })}<div class="h-view" data-tabbar="none"><div class="h-stack">
+    view: `<div class="h-view" data-tabbar="none"><div class="h-band">${topbar({ title: "Cash", lead: backBtn() })}<div class="h-stack">
       <section class="h-hero"><span class="h-label">Available to use</span>${heroAmount(F.money(st.cash, region))}<div class="h-hero-meta"><span>USDC</span><span class="h-dot"></span><span>Base</span></div></section>
       <div class="h-btn-row">${btn({ label: "Add money", variant: "primary", size: "cta", action: "handoff", extra: { "data-entry": "Add money" } })}${btn({ label: "Send", variant: "outline", size: "cta", action: "handoff", extra: { "data-entry": "Send" } })}</div>
+      </div></div><div class="h-surface"><div class="h-stack">
       <section>${sectionHead("Your address")}${panel(rows([row({ media: icon("wallet", 20), title: F.short(F.ACCOUNT), desc: "Receive USDC on Base", action: "copy", data: { "data-copy": F.ACCOUNT }, chevron: false })]).replace('<div class="h-row-trail"></div>', `<div class="h-row-trail"><span class="h-row-chevron">${icon("copy", 20)}</span></div>`))}</section>
       <section>${sectionHead("Recent", btn({ label: "See all", variant: "quiet", size: "sm", action: "tab", extra: { "data-value": "activity" } }))}${panel(rows(st.activity.filter((a) => a.kind !== "saved").slice(0, 3).map((a) => activityRow(a, region))))}</section>
-    </div></div>`,
+    </div></div></div>`,
   };
 }
 
@@ -159,7 +163,8 @@ export function cash(store) {
 const STEPS = ["Amount", "Review", "Result"];
 
 export function move(store, step) {
-  const st = F.HOME_STATES[store.homeState] || F.HOME_STATES.funded;
+  const named = F.HOME_STATES[store.homeState] || F.HOME_STATES.funded;
+  const st = named.loading || !named.vaults ? F.HOME_STATES.funded : named; /* money can only move from a known position */
   const region = st.region;
   const m = store.move;
   const vault = m.vault ? vaultById(m.vault) : null;
@@ -296,7 +301,7 @@ export function explore(store) {
     ["trending", "Invest", "Stocks and crypto"],
   ];
   const head = `<div class="h-title-row"><h1 class="h-large-title">Explore</h1>${iconBtn({ name: "user", label: "Account", action: "go", extra: { "data-to": "account" } })}</div>`;
-  if (store?.treatment === "expressive") {
+  if (store?.treatment === "expressive" || store?.treatment === "base") {
     const card = ({ ic, title, desc, tone, span, figure, entry }) => `<button type="button" class="x-card"${tone ? ` data-tone="${tone}"` : ""}${span ? " data-span" : ""} data-action="handoff" data-entry="${esc(entry || title)}">
       <div class="x-card-body"><div class="x-card-icon">${icon(ic, 20)}</div>${figure ? `<div class="x-card-figure h-num" style="margin-top:auto;padding-top:1rem">${esc(figure)}</div>` : ""}</div>
       <div><div class="x-card-title">${esc(title)}</div><div class="x-card-desc">${esc(desc)}</div></div>
