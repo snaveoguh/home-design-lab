@@ -301,7 +301,7 @@ export function explore(store) {
     ["trending", "Invest", "Stocks and crypto"],
   ];
   const head = `<div class="h-title-row"><h1 class="h-large-title">Explore</h1>${iconBtn({ name: "user", label: "Account", action: "go", extra: { "data-to": "account" } })}</div>`;
-  if (store?.treatment === "expressive" || store?.treatment === "base") {
+  if (store?.treatment !== "quiet") {
     const card = ({ ic, title, desc, tone, span, figure, entry }) => `<button type="button" class="x-card"${tone ? ` data-tone="${tone}"` : ""}${span ? " data-span" : ""} data-action="handoff" data-entry="${esc(entry || title)}">
       <div class="x-card-body"><div class="x-card-icon">${icon(ic, 20)}</div>${figure ? `<div class="x-card-figure h-num" style="margin-top:auto;padding-top:1rem">${esc(figure)}</div>` : ""}</div>
       <div><div class="x-card-title">${esc(title)}</div><div class="x-card-desc">${esc(desc)}</div></div>
