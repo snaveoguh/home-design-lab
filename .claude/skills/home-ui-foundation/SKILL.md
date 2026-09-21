@@ -52,6 +52,10 @@ Geist for everything, Geist Mono for addresses and hashes only. System sans fall
 
 Upstream limits are law: press 120ms, chip 120ms, tab 160ms, fade 140ms, sheet 220ms. Ease-out only (`--h-ease`). Animate `transform` and `opacity`. Balances, amounts and positions never animate. Under `prefers-reduced-motion` or `data-motion="reduce"` every duration is 0 and the sheet fades instead of sliding.
 
+## Treatments
+
+The tokens and components support two treatments. **Quiet** is the default and is Direction 1 exactly. **Expressive** (`home/expressive.css`, applied under `.h-app[data-treatment="expressive"]`) loosens three named rules for a more consumer-app feel: a radial wash behind the hero, low cool shadows on panels plus a translucent floating tab dock, and motion above the 180ms cap for screen transitions, the sheet spring, a one-time balance roll and the result mark. Loosen a rule only in a treatment file, never in the base, and name the rule you are loosening in a comment where it happens. Reduced motion must remove all of it.
+
 ## Porting to Tailwind v4 / shadcn
 
 1. Paste the `:root`, dark media and `[data-theme="dark"]` blocks into `globals.css` and map them in `@theme`: `--color-canvas: var(--h-canvas)` and so on. Product code then uses `bg-canvas`, `text-muted`, `border-hairline`.

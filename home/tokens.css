@@ -23,7 +23,7 @@
   --h-well:          #eef0f3;   /* inset surface: numpad keys, chips, skeleton */
   --h-well-press:    #e2e5ea;   /* the same, pressed */
   --h-scrim:         rgba(10, 11, 13, 0.44);
-  --h-outline-fill:  transparent;              /* outline buttons get a body in dark */
+  --h-outline-fill:  var(--h-panel);           /* outline buttons: white on the light canvas, the well on dark */
 
   /* Accent — the single primary action colour. Nothing else is blue. */
   --h-blue:          #0052ff;

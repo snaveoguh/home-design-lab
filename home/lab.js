@@ -17,18 +17,20 @@ export const store = {
   text: prefs.text || "100",
   width: prefs.width || "390",
   outcome: prefs.outcome || "confirmed",
+  treatment: prefs.treatment || "quiet",
+  rolled: false,
   move: { vault: null, amount: "" },
   activityFilter: "all",
   gallerySeg: "all", gallerySwitch: false, galleryAmount: "",
   lastFocus: null,
 };
-function persist() { writePrefs({ theme: store.theme, motion: store.motion, text: store.text, width: store.width, outcome: store.outcome }); }
+function persist() { writePrefs({ theme: store.theme, motion: store.motion, text: store.text, width: store.width, outcome: store.outcome, treatment: store.treatment }); }
 
 /* ---------- Routing ----------------------------------------------------- */
 
 const ROUTES = {
   home: (s) => S.home(s), save: (s) => S.save(s), cash: (s) => S.cash(s),
-  activity: (s) => S.activity(s), explore: () => S.explore(), account: (s) => S.account(s),
+  activity: (s) => S.activity(s), explore: (s) => S.explore(s), account: (s) => S.account(s),
   components: (s) => G.components(s), tokens: () => G.tokens(),
   "move/destination": (s) => S.move(s, "destination"), "move/amount": (s) => S.move(s, "amount"),
   "move/review": (s) => S.move(s, "review"), "move/pending": (s) => S.move(s, "pending"), "move/result": (s) => S.move(s, "result"),
@@ -60,13 +62,27 @@ const screenEl = document.getElementById("screen");
 const tabEl = document.getElementById("tabbar");
 let current = null;
 
+const expressiveMotion = () => store.treatment === "expressive" && store.motion !== "reduce" && !matchMedia("(prefers-reduced-motion: reduce)").matches;
+
 function render() {
+  const { path } = parse();
+  const isNav = current !== null && current !== path;
+  if (isNav && expressiveMotion() && document.startViewTransition) {
+    const depthOf = (p) => (p === "home" || p === "activity" || p === "explore" ? 0 : p.startsWith("move/") ? 2 : 1);
+    document.documentElement.dataset.nav = depthOf(path) < depthOf(current) ? "back" : "forward";
+    document.startViewTransition(() => paint()).finished.finally(() => { delete document.documentElement.dataset.nav; });
+  } else {
+    paint();
+  }
+}
+function paint() {
   const { path, params } = parse();
   if (params.get("state") && F.HOME_STATES[params.get("state")]) store.homeState = params.get("state");
   const fn = ROUTES[path] || ROUTES.home;
   const out = fn(store);
   const scroll = current === path ? screenEl.querySelector(".h-view")?.scrollTop : 0;
   screenEl.innerHTML = out.view;
+  if (path === "home" && !store.rolled && expressiveMotion()) rollBalance();
   tabEl.innerHTML = out.tab ? tabbar(out.tab) : "";
   tabEl.hidden = !out.tab;
   if (scroll) screenEl.querySelector(".h-view").scrollTop = scroll;
@@ -82,12 +98,38 @@ function render() {
   if (name) {
     const screen = path.replace("move/", "Save · ").replace(/^([a-z])/, (m) => m.toUpperCase());
     const stateLabel = F.HOME_STATES[store.homeState].label;
-    name.textContent = path === "home" || store.homeState !== "funded" ? `${screen} · ${stateLabel}` : screen;
+    name.textContent = `${path === "home" || store.homeState !== "funded" ? `${screen} · ${stateLabel}` : screen}${store.treatment === "expressive" ? " · Expressive" : ""}`;
   }
   for (const el of screenEl.querySelectorAll("[data-token]")) {
     el.textContent = getComputedStyle(document.documentElement).getPropertyValue(el.dataset.token).trim();
   }
   renderSide();
+}
+
+/* One-time balance roll on first arrival, expressive only. Balances otherwise never move. */
+function rollBalance() {
+  const el = screenEl.querySelector(".h-hero-amount");
+  if (!el) return;
+  const finalHTML = el.innerHTML;
+  const text = el.textContent.trim();
+  const m = text.match(/^([^\d]*)([\d.,]+)([^\d]*)$/);
+  if (!m) return;
+  const digits = m[2].replace(/[^\d]/g, "");
+  const decimals = /[.,]\d{2}$/.test(m[2]) ? 2 : 0;
+  const target = Number(digits) / (decimals ? 100 : 1);
+  const sep = m[2].includes(".") && m[2].includes(",") ? (m[2].lastIndexOf(",") > m[2].lastIndexOf(".") ? "," : ".") : (m[2].includes(",") && decimals && m[2].lastIndexOf(",") === m[2].length - 3 ? "," : ".");
+  const group = sep === "." ? "," : ".";
+  const fmt = (n) => { const [i, f] = n.toFixed(decimals).split("."); return m[1] + i.replace(/\B(?=(\d{3})+(?!\d))/g, group) + (decimals ? sep + f : "") + m[3]; };
+  const start = performance.now(), dur = 720;
+  store.rolled = true;
+  el.setAttribute("aria-label", text);
+  const step = (now) => {
+    const t = Math.min(1, (now - start) / dur);
+    const e = 1 - Math.pow(1 - t, 3);
+    if (t < 1) { el.textContent = fmt(target * e); requestAnimationFrame(step); }
+    else { el.innerHTML = finalHTML; el.removeAttribute("aria-label"); }
+  };
+  requestAnimationFrame(step);
 }
 window.addEventListener("hashchange", render);
 
@@ -187,7 +229,7 @@ const actions = {
 
   /* lab chrome */
   "lab-go": (el) => { closeSheet(); go(el.dataset.to, el.dataset.state ? { state: el.dataset.state } : {}); },
-  "lab-set": (el) => { store[el.dataset.key] = el.dataset.value; persist(); applyPrefs(); closeSheet(); render(); },
+  "lab-set": (el) => { store[el.dataset.key] = el.dataset.value; if (el.dataset.key === "treatment") store.rolled = false; persist(); applyPrefs(); closeSheet(); render(); },
   "lab-menu": () => openSheet({ title: "Design lab", desc: `<span class="h-secondary">Screens, states and controls</span>`, body: sideInner(true), label: "Design lab" }),
 };
 document.addEventListener("click", (e) => {
@@ -205,6 +247,7 @@ function applyPrefs() {
   if (store.motion === "reduce") root.dataset.motion = "reduce"; else root.removeAttribute("data-motion");
   root.style.fontSize = `${store.text}%`;
   root.style.setProperty("--lab-w", `${store.width}px`);
+  app.dataset.treatment = store.treatment;
 }
 
 const SCREENS = [
@@ -215,6 +258,7 @@ const SCREENS = [
 ];
 const LIB = [["Components", "components"], ["Tokens", "tokens"]];
 const CONTROLS = [
+  ["treatment", "Treatment", [["quiet", "Quiet"], ["expressive", "Expressive"]]],
   ["theme", "Theme", [["system", "System"], ["light", "Light"], ["dark", "Dark"]]],
   ["motion", "Motion", [["normal", "Normal"], ["reduce", "Reduce"]]],
   ["text", "Text size", [["100", "100%"], ["115", "115%"], ["130", "130%"]]],

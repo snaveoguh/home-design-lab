@@ -29,6 +29,8 @@ Both critics, independently and blind, put the skills arm above the no-skills ar
 
 **What the screenshot-and-critique pass still adds.** No major findings against the lab from either critic. Its minors are real and fixed in this repo after the run: the APY delta was green for a rate that is not a gain; the pending banner said "deposit" for a savings move and its button said "View"; the Saved row lost "APY"; and the funded Home had no Add money action after an earlier critique pushed it into Cash.
 
+**Round two: the loop test.** The skills build was then put through one pass of the loop Jesse's factory already runs: render, critique against the rubric, fix, re-render. A fresh blind critic with no rubric ranked the result **first**, above its own one-shot original and above the lab as captured at that point. Its remaining faults were minors. The lab lost on state geometry and on two product choices, both since fixed. So the full claim is: his loop plus these skills reaches the quality without a designer in the chair, in one iteration. Details in `loop/critic-round-two.md`.
+
 **Limits.** One run per arm, one model family, no human rater. The rubric was written by the same author as the lab, which is why the second critic uses Jesse's own brief instead. Jesse's entries carry a slightly different activity fixture from the builders. Treat this as a strong signal, not a measurement.
 
 Reports: `critic-rubric-report.md`, `critic-upstream-style.md`. Builder self-reports: `builders/*.REPORT.md`. Mechanical checks (overflow, sub-44px controls): `entries/*-checks.txt`.

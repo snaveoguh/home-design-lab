@@ -40,6 +40,15 @@ These are the part that transfers. Each is a `SKILL.md` an agent loads before to
 - **money-ui-critique** — a rubric so a model critic judges against a standard (three-second test, state coverage, move-money checks, generic-fintech smell test) and reports in upstream's severity table.
 - **platform-references** — what we borrow from Apple HIG / iOS 26 and Material 3 Expressive, what we deliberately do not (Liquid Glass, tonal surfaces), and the product patterns from Mercury, Cash App, Wealthfront, Monzo.
 
+## Two treatments
+
+The Screens menu has a **Treatment** switch.
+
+- **Quiet** is Direction 1 to the letter: no gradients, glass, shadows, motion over 180ms, or moving balances. It is the version his rules produce.
+- **Expressive** is a theme-and-motion layer over the same tokens and components (`home/expressive.css`). It deliberately loosens three upstream rules, each named in the file where it happens: a soft glow behind the hero, layered depth on panels and a translucent floating tab dock, and motion above the cap for screen transitions (View Transitions API with the balance carried as a shared element), a spring on the sheet, a one-time balance roll on arrival, and a result mark that draws itself. Explore becomes product cards. Reduced motion removes every part of it.
+
+Same components underneath, so he can take either, or the quiet structure with two of the loud rules.
+
 ## Decisions
 
 Recorded so the next screen inherits them.
@@ -48,7 +57,7 @@ Recorded so the next screen inherits them.
 - **Geist + Geist Mono.** Base Sans is not licensable; Geist has real tabular figures and sits closest to Base's neo-grotesk. Upstream's direction is literally named "Vercel Editorial".
 - **Blue is one primary button plus the active tab.** Selection is ink. State is green / red / amber and always paired with an icon or a word.
 - **Hero → peers → actions → positions → activity.** Net position is the number; available and saved explain it; the two actions sit under the numbers they act on.
-- **Pending is inline, not modal.** One banner on Home, an amber row at the top of Activity, a clock in the media circle.
+- **Pending annotates, it does not displace.** A pill in the hero line ("Still in cash"), an amber row at the top of Activity, a clock in the media circle. The page keeps the same shape in funded, loading and pending. An unknown outcome still gets a banner because it needs an action.
 - **A word never sits in the number slot.** When savings are unavailable, Home keeps the last known figures in muted ink with an "as of 12:03 UTC" marker and the same amber banner idiom pending uses. Loading skeletons keep the page's geometry, including the buttons and the activity block.
 - **Primary on Home is "Move to savings", secondary is "Add money".** Send lives in Cash and Explore. An earlier pass swapped Send in; both blind critics flagged the missing funding action, so it came back. Open product question for Jesse: whether Send deserves a tab of its own, as Cash App and Monzo do.
 - **A rate is not a gain.** APY reads in muted ink with no arrow; green and the up arrow are reserved for money that came in or a value that rose.
@@ -67,7 +76,7 @@ Netlify: New site → this repo → `netlify.toml` publishes `home/` with no bui
 
 ## Workflow comparison
 
-`comparison/` holds a blind test: the same Home brief run with the upstream inputs alone, with the upstream inputs plus the four skills here, and the hand-designed lab, judged blind against the real B and C renders from PR #675 by two critics. Both ranked the lab first and the skills arm second. See `comparison/RESULTS.md`.
+`comparison/` holds a blind test: the same Home brief run with the upstream inputs alone, with the upstream inputs plus the four skills here, and the lab, judged blind against the real B and C renders from PR #675 by two critics. Then a loop test: the skills build put through one render-critique-fix pass ranked first. See `comparison/RESULTS.md`.
 
 ## Workflow options to test with Jesse
 

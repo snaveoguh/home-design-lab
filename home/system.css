@@ -173,6 +173,7 @@
   align-items: center;
   gap: var(--h-s-2);
   flex-wrap: wrap;
+  min-height: 1.75rem; /* the pending pill fits inside; nothing below moves between states */
   font-size: var(--h-t-secondary);
   line-height: var(--h-l-secondary);
   color: var(--h-muted);

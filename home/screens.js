@@ -17,12 +17,12 @@ export function home(store) {
       view: `${top}<div class="h-view"><div class="h-stack">
         <section class="h-hero" aria-busy="true" aria-label="Net position, loading">
           <span class="h-label">Net position</span>
-          ${skeleton("11ch", "3rem")}
-          ${skeleton("14ch", "1rem")}
+          ${skeleton("11ch", "3.25rem")}
+          <div class="h-hero-meta">${skeleton("14ch", "1rem")}</div>
         </section>
         <div class="h-peers">
-          <div class="h-peer"><span class="h-label">Available to use</span>${skeleton("7ch", "1.5rem")}</div>
-          <div class="h-peer"><span class="h-label">Saved</span>${skeleton("8ch", "1.5rem")}</div>
+          <div class="h-peer"><span class="h-label">Available to use</span>${skeleton("7ch", "1.5rem")}<div class="h-peer-meta">${skeleton("5ch", "0.75rem")}</div></div>
+          <div class="h-peer"><span class="h-label">Saved</span>${skeleton("8ch", "1.5rem")}<div class="h-peer-meta">${skeleton("5ch", "0.75rem")}</div></div>
         </div>
         <div class="h-btn-row">${skeleton("100%", "3.25rem")}${skeleton("100%", "3.25rem")}</div>
         <section>${sectionHead("Positions")}${panel(rows([1, 2, 3].map(() => row({ title: "", desc: "", amount: "" })).map((r) => r.replace('<div class="h-row-title"></div>', `<div class="h-row-title">${skeleton("6ch")}</div>`).replace('<div class="h-row-amount h-num"><span></span></div>', `<div class="h-row-amount h-num">${skeleton("6ch")}</div>`)), { "data-media": "none" }))}</section>
@@ -37,10 +37,12 @@ export function home(store) {
   const net = F.money(pos.net, region);
   const isEmpty = store.homeState === "empty";
   const partialBanner = partial ? banner({ icon: "alert", tone: "attention", title: "Savings balances unavailable", desc: `Cash is current. Saved shows the ${F.timeLabel(F.READ_AT_ISO)} UTC reading.`, action: "retry", actionLabel: "Retry" }) : "";
-  const pendingBanner = st.pending ? banner(st.pending.status === "unknown"
-    ? { icon: "alert", tone: "attention", title: `We couldn't confirm ${F.money(st.pending.amount, region)} to savings`, desc: "Check Activity before moving anything again.", action: "tab", actionLabel: "Activity" }
-    : { icon: "clock", tone: "attention", title: `${F.money(st.pending.amount, region)} to savings is pending`, desc: `Into ${vaultById(st.pending.vault).name}. Nothing has moved yet.`, action: "tab", actionLabel: "Activity" }
+  const pendingBanner = st.pending && st.pending.status === "unknown" ? banner(
+    { icon: "alert", tone: "attention", title: `We couldn't confirm ${F.money(st.pending.amount, region)} to savings`, desc: "Check Activity before moving anything again.", action: "tab", actionLabel: "Activity" }
   ).replace('data-action="tab"', 'data-action="tab" data-value="activity"') : "";
+  const pendingLine = st.pending && st.pending.status === "pending"
+    ? `${pill("Pending", "attention")}<span>${F.money(st.pending.amount, region)} to ${esc(vaultById(st.pending.vault).name)}</span><span class="h-dot"></span><span>Still in cash</span>`
+    : null;
 
   const positions = panel(rows([
     row({ title: "Cash", desc: isEmpty ? "Add money to start" : "Available to use", amount: F.money(pos.cash, region), action: "go", data: { "data-to": "cash" } }),
@@ -65,10 +67,10 @@ export function home(store) {
       <section class="h-hero" aria-labelledby="net-label">
         <span class="h-label" id="net-label">Net position</span>
         ${heroAmount(net)}
-        <div class="h-hero-meta">${netMeta}</div>
+        <div class="h-hero-meta">${pendingLine || netMeta}</div>
       </section>
       <div class="h-peers">
-        <div class="h-peer"><span class="h-label">Available to use</span><div class="h-peer-amount h-num"${net.length > 12 ? ' data-size="long"' : ""}>${F.money(pos.cash, region)}</div><div class="h-peer-meta">USDC on Base</div></div>
+        <div class="h-peer"><span class="h-label">Available to use</span><div class="h-peer-amount h-num"${net.length > 12 ? ' data-size="long"' : ""}>${F.money(pos.cash, region)}</div><div class="h-peer-meta">Ready now</div></div>
         <div class="h-peer"><span class="h-label">Saved</span><div class="h-peer-amount h-num"${net.length > 12 ? ' data-size="long"' : ""}${partial ? ' style="color:var(--h-muted)"' : ""}>${partial ? F.money(last.saved, region) : F.money(pos.saved, region)}</div><div class="h-peer-meta">${partial ? `<span class="h-attention">Unavailable now</span>` : pos.saved ? `${F.pct(pos.weighted)} APY` : "Not earning yet"}</div></div>
       </div>
       ${isEmpty
@@ -285,7 +287,7 @@ export function entrySheet(id, store) {
 
 /* ---------- Explore ----------------------------------------------------- */
 
-export function explore() {
+export function explore(store) {
   const items = [
     ["plus", "Add money", "Card, bank transfer or crypto"],
     ["arrow-up-right", "Send", "To any address on Base"],
@@ -293,8 +295,26 @@ export function explore() {
     ["layers", "Borrow", "Against your savings"],
     ["trending", "Invest", "Stocks and crypto"],
   ];
+  const head = `<div class="h-title-row"><h1 class="h-large-title">Explore</h1>${iconBtn({ name: "user", label: "Account", action: "go", extra: { "data-to": "account" } })}</div>`;
+  if (store?.treatment === "expressive") {
+    const card = ({ ic, title, desc, tone, span, figure, entry }) => `<button type="button" class="x-card"${tone ? ` data-tone="${tone}"` : ""}${span ? " data-span" : ""} data-action="handoff" data-entry="${esc(entry || title)}">
+      <div class="x-card-body"><div class="x-card-icon">${icon(ic, 20)}</div>${figure ? `<div class="x-card-figure h-num" style="margin-top:auto;padding-top:1rem">${esc(figure)}</div>` : ""}</div>
+      <div><div class="x-card-title">${esc(title)}</div><div class="x-card-desc">${esc(desc)}</div></div>
+    </button>`;
+    return { tab: "explore", view: `<div class="h-view"><div class="h-stack">
+      ${head}
+      <div class="x-cards">
+        ${card({ ic: "vault", title: "Earn up to 4.10%", desc: "USDC vaults, withdraw any time", tone: "blue", span: true, figure: "4.10%", entry: "Save" })}
+        ${card({ ic: "plus", title: "Add money", desc: "Card, bank or crypto" })}
+        ${card({ ic: "arrow-up-right", title: "Send", desc: "Any address on Base" })}
+        ${card({ ic: "layers", title: "Borrow", desc: "Against your savings", tone: "attention" })}
+        ${card({ ic: "trending", title: "Invest", desc: "Stocks and crypto", tone: "gain" })}
+        ${card({ ic: "arrow-down-left", title: "Receive", desc: "Your address and QR", tone: "ink", span: true, entry: "Receive" })}
+      </div>
+    </div></div>` };
+  }
   return { tab: "explore", view: `<div class="h-view"><div class="h-stack">
-    <div class="h-title-row"><h1 class="h-large-title">Explore</h1>${iconBtn({ name: "user", label: "Account", action: "go", extra: { "data-to": "account" } })}</div>
+    ${head}
     ${panel(rows(items.map(([ic, t, d]) => row({ media: icon(ic, 20), title: t, desc: d, action: "handoff", data: { "data-entry": t } }))))}
   </div></div>` };
 }
@@ -329,6 +349,7 @@ export function handoffSheet(entry) {
     Send: "This opens Home's existing send flow. No transfer is created here.",
     Receive: "This shows Home's existing receive screen.",
     Withdraw: "This opens Home's existing withdrawal flow. No money moves here.",
+    Save: "This opens the Saved screen and vault list.",
     Borrow: "This opens Home's existing Borrow experience. The fixture has no debt; no eligibility is implied.",
     Invest: "This opens Home's existing Invest discovery. No quote or order is created.",
     Region: "Region and currency settings are not part of this fixture.",
