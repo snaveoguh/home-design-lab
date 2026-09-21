@@ -19,7 +19,7 @@ export const store = {
   text: prefs.text || "100",
   width: prefs.width || "390",
   outcome: prefs.outcome || "confirmed",
-  treatment: urlPrefs.treatment || prefs.treatment || "glass",
+  treatment: ["glass", "base", "quiet"].includes(urlPrefs.treatment || prefs.treatment) ? (urlPrefs.treatment || prefs.treatment) : "glass",
   rolled: false,
   move: { vault: null, amount: "" },
   activityFilter: "all",
@@ -159,7 +159,7 @@ function mountCompact() {
   onScroll();
 }
 
-/* One-time balance roll on first arrival, expressive only. Balances otherwise never move. */
+/* One-time balance roll on first arrival, Glass and Base only. Balances otherwise never move. */
 function rollBalance() {
   const el = screenEl.querySelector(".h-hero-amount");
   if (!el) return;
@@ -312,7 +312,7 @@ const SCREENS = [
 ];
 const LIB = [["Components", "components"], ["Tokens", "tokens"]];
 const CONTROLS = [
-  ["treatment", "Treatment", [["glass", "Glass"], ["base", "Base"], ["expressive", "Expressive"], ["quiet", "Quiet"]]],
+  ["treatment", "Treatment", [["glass", "Glass"], ["base", "Base"], ["quiet", "Quiet"]]],
   ["theme", "Theme", [["system", "System"], ["light", "Light"], ["dark", "Dark"]]],
   ["motion", "Motion", [["normal", "Normal"], ["reduce", "Reduce"]]],
   ["text", "Text size", [["100", "100%"], ["115", "115%"], ["130", "130%"]]],
