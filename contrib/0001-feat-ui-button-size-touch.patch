@@ -1,0 +1,337 @@
+From eb8ce6d40b8a76399431b89f68fb690acdfb5063 Mon Sep 17 00:00:00 2001
+From: Hugo Evans <hugoevans92@gmail.com>
+Date: Wed, 23 Sep 2026 23:05:47 +0000
+Subject: [PATCH] feat(ui): add Button size="touch" for 44px mobile CTAs
+
+The Figma library in #803 draws Button size=touch and lists this as a
+P0 follow-up. Code repeated size="lg" plus a className="h-11" override
+on fifteen buttons, so Code Connect could not map 1:1.
+
+- Add size="touch" (44px) to the Button cva; lg stays 36px.
+- Move the fifteen size="lg" + h-11 buttons to size="touch" with no
+  visual change.
+- Move the lg CTAs that rendered at 36px to size="touch" so they meet
+  the 44px target: Continue (access form), Retry sign out and Try again
+  (sign-in shell), Retry loading memes (invest category), and the
+  copy-address button (add money).
+- Leave the savings vault picker row (Item rendered as a Button) and
+  primary navigation (owns its own min-h-11) on lg.
+- Add a Sizes story and a design-system note.
+
+Checks: typecheck, oxlint, gates, bun test (2011 pass, 0 fail) and the
+Storybook build all pass. The Sizes story renders touch at 44px.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_014TWuFF2gWcagG1EJ1E3w6u
+---
+ apps/web/app/access/access-form.tsx              |  2 +-
+ apps/web/client/account/sign-in-base-account.tsx |  4 ++--
+ apps/web/client/account/sign-in-email.tsx        |  8 ++++----
+ apps/web/client/account/sign-in-otp.tsx          | 12 ++++++------
+ apps/web/client/account/sign-in-shell.tsx        |  4 ++--
+ apps/web/client/funding/add-money-dialog.tsx     |  2 +-
+ apps/web/client/funding/funding-actions.tsx      |  3 +--
+ apps/web/client/home/shell-chrome.tsx            |  6 +++---
+ apps/web/client/invest/category-screen.tsx       |  2 +-
+ apps/web/client/money-modal/money-modal.tsx      |  4 ++--
+ apps/web/client/savings/savings-experience.tsx   |  8 ++++----
+ apps/web/client/trading/trade-actions.tsx        |  4 ++--
+ apps/web/client/transfers/transfer-actions.tsx   |  3 +--
+ apps/web/components/ui/button.stories.tsx        | 12 ++++++++++++
+ apps/web/components/ui/button.tsx                |  1 +
+ docs/design-system.md                            |  1 +
+ 16 files changed, 44 insertions(+), 32 deletions(-)
+
+diff --git a/apps/web/app/access/access-form.tsx b/apps/web/app/access/access-form.tsx
+index e0fcd1a..8db96f2 100644
+--- a/apps/web/app/access/access-form.tsx
++++ b/apps/web/app/access/access-form.tsx
+@@ -79,7 +79,7 @@ export function AccessForm({ next }: { next: string }) {
+         />
+       </label>
+       {error ? <p role="alert" className="text-sm text-destructive">{error}</p> : null}
+-      <Button type="submit" size="lg" className="w-full" disabled={pending}>
++      <Button type="submit" size="touch" className="w-full" disabled={pending}>
+         {pending ? "Checking…" : "Continue"}
+       </Button>
+     </form>
+diff --git a/apps/web/client/account/sign-in-base-account.tsx b/apps/web/client/account/sign-in-base-account.tsx
+index d7c0821..eafe0ae 100644
+--- a/apps/web/client/account/sign-in-base-account.tsx
++++ b/apps/web/client/account/sign-in-base-account.tsx
+@@ -51,8 +51,8 @@ export function BaseAccountOnlySignIn({
+     <div className="mt-4">
+       <Button
+         ref={buttonRef}
+-        className={phase ? "h-11 w-full whitespace-normal" : "h-11 w-full"}
+-        size="lg"
++        className={phase ? "w-full whitespace-normal" : "w-full"}
++        size="touch"
+         variant="secondary"
+         onClick={onSignIn}
+         aria-busy={phase ? true : undefined}
+diff --git a/apps/web/client/account/sign-in-email.tsx b/apps/web/client/account/sign-in-email.tsx
+index d3cf0c1..6f682b4 100644
+--- a/apps/web/client/account/sign-in-email.tsx
++++ b/apps/web/client/account/sign-in-email.tsx
+@@ -49,8 +49,8 @@ export function SignInEmail({
+           />
+         </Field>
+         <Button
+-          className="h-11 w-full"
+-          size="lg"
++          className="w-full"
++          size="touch"
+           type="submit"
+           disabled={isSendingCode || baseAccountPending}
+         >
+@@ -60,8 +60,8 @@ export function SignInEmail({
+           <>
+             <FieldSeparator>or</FieldSeparator>
+             <Button
+-              className={baseAccountPending ? "h-11 w-full whitespace-normal" : "h-11 w-full"}
+-              size="lg"
++              className={baseAccountPending ? "w-full whitespace-normal" : "w-full"}
++              size="touch"
+               variant="secondary"
+               onClick={onBaseAccountSignIn}
+               aria-busy={baseAccountPending || undefined}
+diff --git a/apps/web/client/account/sign-in-otp.tsx b/apps/web/client/account/sign-in-otp.tsx
+index e3165d7..5a359bf 100644
+--- a/apps/web/client/account/sign-in-otp.tsx
++++ b/apps/web/client/account/sign-in-otp.tsx
+@@ -54,8 +54,8 @@ export function SignInOtp({
+             data-initial-focus
+           />
+           <Button
+-            className="h-11 w-full sm:w-auto"
+-            size="lg"
++            className="w-full sm:w-auto"
++            size="touch"
+             variant="ghost"
+             onClick={onChangeEmail}
+             disabled={isVerifyingCode || isSendingCode}
+@@ -68,16 +68,16 @@ export function SignInOtp({
+         </FieldDescription>
+       </Field>
+       <Button
+-        className="h-11 w-full"
+-        size="lg"
++        className="w-full"
++        size="touch"
+         type="submit"
+         disabled={isVerifyingCode || otp.length !== 6}
+       >
+         {isVerifyingCode ? "Verifying…" : "Verify and continue"}
+       </Button>
+       <Button
+-        className="h-11 w-full"
+-        size="lg"
++        className="w-full"
++        size="touch"
+         variant="secondary"
+         onClick={onResend}
+         disabled={isSendingCode || resendSeconds > 0}
+diff --git a/apps/web/client/account/sign-in-shell.tsx b/apps/web/client/account/sign-in-shell.tsx
+index 1d78138..cd395c4 100644
+--- a/apps/web/client/account/sign-in-shell.tsx
++++ b/apps/web/client/account/sign-in-shell.tsx
+@@ -73,7 +73,7 @@ export function SignInStatus({
+       <Alert className="mt-4">
+         <AlertTitle>Sign-out did not finish.</AlertTitle>
+         <AlertDescription>
+-          <Button className="mt-2 w-full" size="lg" variant="secondary" onClick={onRetrySignOut}>
++          <Button className="mt-2 w-full" size="touch" variant="secondary" onClick={onRetrySignOut}>
+             Retry sign out
+           </Button>
+         </AlertDescription>
+@@ -85,7 +85,7 @@ export function SignInStatus({
+       <Alert className="mt-4">
+         <AlertTitle>We could not verify this session.</AlertTitle>
+         <AlertDescription>
+-          <Button className="mt-2 w-full" size="lg" variant="secondary" onClick={onRetryValidation}>
++          <Button className="mt-2 w-full" size="touch" variant="secondary" onClick={onRetryValidation}>
+             Try again
+           </Button>
+         </AlertDescription>
+diff --git a/apps/web/client/funding/add-money-dialog.tsx b/apps/web/client/funding/add-money-dialog.tsx
+index e604e32..75ca296 100644
+--- a/apps/web/client/funding/add-money-dialog.tsx
++++ b/apps/web/client/funding/add-money-dialog.tsx
+@@ -325,7 +325,7 @@ function ReceiveAddress({ address }: { address: `0x${string}` }) {
+       <Button
+         variant="ghost"
+         className="select-text"
+-        size="lg"
++        size="touch"
+         title={address}
+         aria-label={copyStatus === "copied" ? "Copied" : `Copy ${condensed}`}
+         aria-describedby="receive-address-help"
+diff --git a/apps/web/client/funding/funding-actions.tsx b/apps/web/client/funding/funding-actions.tsx
+index b3fb70e..726fe88 100644
+--- a/apps/web/client/funding/funding-actions.tsx
++++ b/apps/web/client/funding/funding-actions.tsx
+@@ -123,8 +123,7 @@ export function FundingActionsForWallet({
+   return (
+     <>
+       <Button
+-        size="lg"
+-        className="h-11"
++        size="touch"
+         onClick={() => {
+           openedInAppRef.current = true;
+           setDismissed(false);
+diff --git a/apps/web/client/home/shell-chrome.tsx b/apps/web/client/home/shell-chrome.tsx
+index 2231e4c..d64468c 100644
+--- a/apps/web/client/home/shell-chrome.tsx
++++ b/apps/web/client/home/shell-chrome.tsx
+@@ -194,12 +194,12 @@ export function SignedOutLanding({
+           </p>
+           <div className="flex flex-wrap items-center gap-3">
+             {isVerified ? (
+-              <Button size="lg" className="h-11" onClick={onDashboard}>Open dashboard</Button>
++              <Button size="touch" onClick={onDashboard}>Open dashboard</Button>
+             ) : (
+               <>
+-                <Button size="lg" className="h-11" onClick={onSignIn}>Sign in</Button>
++                <Button size="touch" onClick={onSignIn}>Sign in</Button>
+                 {showCreateAccount ? (
+-                  <Button size="lg" className="h-11" variant="secondary" onClick={onSignIn}>
++                  <Button size="touch" variant="secondary" onClick={onSignIn}>
+                     Create account
+                   </Button>
+                 ) : null}
+diff --git a/apps/web/client/invest/category-screen.tsx b/apps/web/client/invest/category-screen.tsx
+index e568e7a..8c03ca9 100644
+--- a/apps/web/client/invest/category-screen.tsx
++++ b/apps/web/client/invest/category-screen.tsx
+@@ -173,7 +173,7 @@ function MemePaginationFooter({
+         </Alert>
+       ) : null}
+       {loadMoreError ? (
+-        <Button className="w-full" size="lg" variant="secondary" onClick={onRetryLoadMore}>
++        <Button className="w-full" size="touch" variant="secondary" onClick={onRetryLoadMore}>
+           Retry loading memes
+         </Button>
+       ) : null}
+diff --git a/apps/web/client/money-modal/money-modal.tsx b/apps/web/client/money-modal/money-modal.tsx
+index cf3962c..0075f9a 100644
+--- a/apps/web/client/money-modal/money-modal.tsx
++++ b/apps/web/client/money-modal/money-modal.tsx
+@@ -106,8 +106,8 @@ function FooterButtons({ primaryLabel, onPrimary, primaryDisabled = false, prima
+   const active = action && !actionExpired && !expired && Number.isFinite(Date.parse(action.expiresAt));
+   return (
+     <DrawerFooter>
+-      <Button size="lg" className="h-11" type={primaryType} disabled={primaryDisabled} onClick={onPrimary} {...(active ? { [MONEY_ACTION_ID_ATTRIBUTE]: action.id } : {})}>{primaryLabel}</Button>
+-      {secondaryLabel && onSecondary ? <Button size="lg" variant="ghost" className="h-11" disabled={secondaryDisabled} onClick={onSecondary}>{secondaryLabel}</Button> : null}
++      <Button size="touch" type={primaryType} disabled={primaryDisabled} onClick={onPrimary} {...(active ? { [MONEY_ACTION_ID_ATTRIBUTE]: action.id } : {})}>{primaryLabel}</Button>
++      {secondaryLabel && onSecondary ? <Button size="touch" variant="ghost" disabled={secondaryDisabled} onClick={onSecondary}>{secondaryLabel}</Button> : null}
+     </DrawerFooter>
+   );
+ }
+diff --git a/apps/web/client/savings/savings-experience.tsx b/apps/web/client/savings/savings-experience.tsx
+index 9e4d405..f002900 100644
+--- a/apps/web/client/savings/savings-experience.tsx
++++ b/apps/web/client/savings/savings-experience.tsx
+@@ -629,18 +629,18 @@ export function SavingsExperience({
+ 
+       {loadState.status !== "error" && (availableBalance || !hasSession) ? (
+         <div className={`grid gap-2 ${funded ? "grid-cols-2" : "grid-cols-1"}`}>
+-          <Button className="h-11"
++          <Button
+             ref={depositOpenerRef}
+-            size="lg"
++            size="touch"
+             disabled={!actionsReady}
+             onClick={() => openAction("deposit")}
+           >
+             {funded ? "Deposit" : "Get started"}
+           </Button>
+           {funded ? (
+-            <Button className="h-11"
++            <Button
+               ref={withdrawOpenerRef}
+-              size="lg"
++              size="touch"
+               variant="outline"
+               disabled={!actionsReady || !canWithdraw}
+               onClick={() => openAction("withdraw")}
+diff --git a/apps/web/client/trading/trade-actions.tsx b/apps/web/client/trading/trade-actions.tsx
+index 06f8c85..594f394 100644
+--- a/apps/web/client/trading/trade-actions.tsx
++++ b/apps/web/client/trading/trade-actions.tsx
+@@ -30,8 +30,8 @@ export function TradeActions({
+         className={layout === "sticky" ? "grid grid-cols-2 gap-2" : "flex justify-end gap-2"}
+         aria-label={`Trade ${asset.displayName}`}
+       >
+-        <Button className="h-11" size="lg" disabled>Buy</Button>
+-        <Button className="h-11" size="lg" variant="secondary" disabled>Sell</Button>
++        <Button size="touch" disabled>Buy</Button>
++        <Button size="touch" variant="secondary" disabled>Sell</Button>
+       </div>
+       <div className="text-right text-sm text-muted-foreground" role="note">
+         Swaps aren&apos;t available right now.
+diff --git a/apps/web/client/transfers/transfer-actions.tsx b/apps/web/client/transfers/transfer-actions.tsx
+index 6e44341..2423d02 100644
+--- a/apps/web/client/transfers/transfer-actions.tsx
++++ b/apps/web/client/transfers/transfer-actions.tsx
+@@ -131,8 +131,7 @@ export function TransferActionsForWallet({
+       <Button
+         data-action-trigger=""
+         variant="outline"
+-        size="lg"
+-        className="h-11"
++        size="touch"
+         disabled={!boundary}
+         onClick={openSend}
+       >
+diff --git a/apps/web/components/ui/button.stories.tsx b/apps/web/components/ui/button.stories.tsx
+index 31baa3a..0416e30 100644
+--- a/apps/web/components/ui/button.stories.tsx
++++ b/apps/web/components/ui/button.stories.tsx
+@@ -31,6 +31,18 @@ export const Variants: Story = {
+ 
+ export const Disabled: Story = { args: { disabled: true } };
+ 
++/** `touch` is the 44px mobile CTA height. Use it instead of `lg` plus a height override. */
++export const Sizes: Story = {
++  render: () => (
++    <div className="flex flex-wrap items-center gap-2">
++      <Button size="sm">Small</Button>
++      <Button>Default</Button>
++      <Button size="lg">Large</Button>
++      <Button size="touch">Touch</Button>
++    </div>
++  ),
++};
++
+ function PressFeedbackStory() {
+   const [activations, setActivations] = useState(0);
+   const activate = () => setActivations((count) => count + 1);
+diff --git a/apps/web/components/ui/button.tsx b/apps/web/components/ui/button.tsx
+index e3f811a..08ca8d9 100644
+--- a/apps/web/components/ui/button.tsx
++++ b/apps/web/components/ui/button.tsx
+@@ -28,6 +28,7 @@ const buttonVariants = cva(
+         xs: "h-6 gap-1 rounded-md px-2 text-xs in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3",
+         sm: "h-7 gap-1 rounded-md px-2.5 text-xs in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3.5",
+         lg: "h-9 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
++        touch: "h-11 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
+         icon: "size-8",
+         "icon-xs":
+           "size-6 rounded-md in-data-[slot=button-group]:rounded-lg [&_svg:not([class*='size-'])]:size-3",
+diff --git a/docs/design-system.md b/docs/design-system.md
+index d8c6c10..fb7d687 100644
+--- a/docs/design-system.md
++++ b/docs/design-system.md
+@@ -92,6 +92,7 @@ Use the owned component contracts rather than restyling their slots:
+ - `ItemMedia variant="avatar"` owns the standard circular row media. `ItemTitle` accepts `tone` and `numeric`; `ItemDescription` accepts `lines={1 | 2}`.
+ - `CardContent inset="list"` owns list-card horizontal insets; put screen-specific flow spacing on a plain inner wrapper.
+ - `Button variant="navigation"` owns primary-navigation presentation, and `size="inline"` is for small actions embedded in prose.
++- `Button size="touch"` is the 44px mobile CTA height. Use it for touch-first actions instead of `size="lg"` with a height override; `lg` stays 36px for dense or desktop contexts.
+ - `Button press="standard" | "icon" | "none"` owns press feedback: standard actions compress on pointer/touch-down, icon-only controls compress deliberately more, and `none` keeps wide rows, navigation, product tiles, and link-like text still as whole surfaces. Every variant mirrors its hover treatment in `active:` and reduced motion drops every press transform while keeping those color cues.
+ - `Input variant="otp" | "code"` owns verification-code and monospace input typography. `InputGroupInput` forwards the same variant.
+ - `PayoutMark variant="cashapp" | "zelle" | "monzo" | "revolut" | "fallback" | "count"` owns circular payout-mark geometry, typography, and semantic brand colors.
+-- 
+2.43.0
+
